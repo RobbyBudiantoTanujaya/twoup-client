@@ -522,4 +522,39 @@ LOGIKA/batch (gate). Depends on: "CHECKPOINT GATE VISUAL". Jalankan build Androi
 - EditMode suite penuh tetap hijau.
 
 <!-- ccq:progress:start -->
+## CCQ Progress — 0/33 selesai
+
+- [ ] `t_0716_0035_0e92aed9` Update CLAUDE.md client - ganti scope guard skeleton dengan scope MVP ⏳ running
+- [ ] `t_0716_0035_3d71df3c` Struktur asmdef + test scaffolding EditMode
+- [ ] `t_0716_0035_8ee99a99` Extend proto kontrak per TDD 3.1 + regen C#
+- [ ] `t_0716_0035_a2737e00` RateGate + extend NetworkClient (event baru, SendRateLimited, ping interval)
+- [ ] `t_0716_0035_7da194ac` GameCatalog ScriptableObject + asset seed
+- [ ] `t_0716_0035_2d08f139` Extend MatchContext + AppStateMachine (state & routing baru)
+- [ ] `t_0716_0035_7edc4605` Helper murni A - RoomCodeSanitizer, DeepLinkParser, InstallReferrerParser (+reader wrapper)
+- [ ] `t_0716_0035_5cd660fc` Helper murni B - formatter & sorter (voting, async list, reflex, ledger)
+- [ ] `t_0716_0035_c3a1cc80` SnapshotInterpolator untuk game real-time
+- [ ] `t_0716_0035_b215c6bd` Battleship placement - validator + generator deterministik
+- [ ] `t_0716_0035_8b549654` Platform plumbing - DeepLinkRouter, PushTokenClient, provider stub ads/IAP
+- [ ] `t_0716_0035_38edeebf` CHECKPOINT GATE LOGIKA - suite EditMode penuh hijau headless
+- [ ] `t_0716_0035_4e56267c` Refactor builder - UiKit + per-scene builder + SceneAsserts
+- [ ] `t_0716_0035_dd31e0c3` Shared HUD kit - EmoteWheelController + ConnectionIndicator + builder helper
+- [ ] `t_0716_0035_51124738` Scene Home (S2)
+- [ ] `t_0716_0035_cf1ecfeb` Extend scene Boot - App wiring baru + alur ke Home
+- [ ] `t_0716_0035_59367503` Retire Lobby - hapus scene, controller, builder
+- [ ] `t_0716_0035_1f3fd1bd` Scene InviteRoom (S3)
+- [ ] `t_0716_0035_084b36c7` Scene Queue (S4)
+- [ ] `t_0716_0035_5778be3a` Scene Voting (S5) + bot picker
+- [ ] `t_0716_0035_d7fbd311` Scene Result (S7)
+- [ ] `t_0716_0035_a70267c3` Scene AsyncMatches (S11)
+- [ ] `t_0716_0035_f4706690` Scene Profile (S8)
+- [ ] `t_0716_0035_b66d0de4` Scene Shop (S9)
+- [ ] `t_0716_0035_a68f8c0d` Scene Settings (S10)
+- [ ] `t_0716_0035_023a20a9` Extend scene ConnectFour - turn timer ring, emote wheel, jalur async
+- [ ] `t_0716_0035_09be9778` Scene ReflexDuel (S6-RD)
+- [ ] `t_0716_0035_dbdd042f` Scene AirHockey (S6-AH)
+- [ ] `t_0716_0035_5e5491c1` Scene WallDefense (S6-WD)
+- [ ] `t_0716_0035_a1a7f548` Scene KeepUpDuo (S6-KU)
+- [ ] `t_0716_0035_a6c9041c` Scene Battleship (S6-BS)
+- [ ] `t_0716_0035_c4cc2ec6` CHECKPOINT GATE VISUAL - semua scene terverifikasi mekanis
+- [ ] `t_0716_0035_845163fb` GATE AKHIR - APK build hijau
 <!-- ccq:progress:end -->
