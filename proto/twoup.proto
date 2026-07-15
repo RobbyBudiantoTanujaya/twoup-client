@@ -1,0 +1,46 @@
+// Protobuf contract v0 — single source of truth. Do not redesign; only extend if
+// strictly needed and note it with a TODO(contract) comment.
+syntax = "proto3";
+package twoup.v1;
+option go_package = "github.com/RobbyBudiantoTanujaya/twoup-server/gen/twoup/v1;twoupv1";
+
+message Envelope { oneof payload {
+  ClientHello client_hello = 1;
+  ServerHello server_hello = 2;
+  JoinQueue join_queue = 10;
+  LeaveQueue leave_queue = 11;
+  CreateRoom create_room = 12;
+  JoinRoom join_room = 13;
+  RoomCreated room_created = 14;
+  MatchFound match_found = 15;
+  GameStart game_start = 20;
+  GameInput game_input = 21;
+  GameState game_state = 22;
+  GameOver game_over = 23;
+  RematchRequest rematch_request = 30;
+  Ping ping = 40;
+  Pong pong = 41;
+  Error error = 50;
+}}
+message ClientHello { string device_id = 1; string display_name = 2; }
+message ServerHello { string player_id = 1; }
+message JoinQueue {}
+message LeaveQueue {}
+message CreateRoom {}
+message JoinRoom { string room_code = 1; }
+message RoomCreated { string room_code = 1; }
+message PlayerInfo { string player_id = 1; string display_name = 2; int32 team_id = 3; int32 seat = 4; bool is_bot = 5; }
+message MatchFound { string match_id = 1; repeated PlayerInfo players = 2; string game_id = 3; }
+message GameStart { string match_id = 1; bytes initial_state = 2; }
+message GameInput { string match_id = 1; bytes input = 2; }   // game-specific payload, for connect_four: ConnectFourInput
+message GameState { string match_id = 1; bytes state = 2; }
+message GameResult { repeated string winner_player_ids = 1; bool draw = 2; }
+message GameOver { string match_id = 1; GameResult result = 2; }
+message RematchRequest { string match_id = 1; bool accept = 2; }
+message Ping { int64 ts = 1; }
+message Pong { int64 ts = 1; }
+message Error { string code = 1; string message = 2; }
+
+// connect four payloads (same file or connect_four.proto in same package)
+message ConnectFourInput { int32 column = 1; }
+message ConnectFourState { repeated int32 cells = 1; string next_player_id = 2; } // 7x6, row-major, 0 empty / seat+1
