@@ -264,6 +264,9 @@ namespace TwoUp.Net
                 case Envelope.PayloadOneofCase.Pong:
                     // TODO: track round-trip latency from Pong.Ts
                     break;
+                case Envelope.PayloadOneofCase.Ping:
+                    Send(new Envelope { Pong = new Twoup.V1.Pong { Ts = env.Ping.Ts } });
+                    break;
                 default:
                     Debug.LogWarning($"[Net] Unhandled payload: {env.PayloadCase}");
                     break;
