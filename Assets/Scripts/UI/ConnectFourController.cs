@@ -1,3 +1,4 @@
+using System.Collections;
 using Google.Protobuf;
 using TMPro;
 using Twoup.V1;
@@ -10,12 +11,16 @@ namespace TwoUp.UI
     /// <summary>
     /// Renders the server-sent ConnectFourState and sends ConnectFourInput on column tap.
     /// Server-authoritative: no local rules beyond input legality hints (full column or
-    /// not-my-turn → column button disabled).
+    /// not-my-turn → column button disabled). The turn-timer ring is display-only — the
+    /// server, never the client, skips a player who runs out of time (AC-C4-06).
     /// </summary>
     public class ConnectFourController : MonoBehaviour
     {
         public const int Columns = 7;
         public const int Rows = 6;
+
+        private const float TurnTimerSeconds = 30f;
+        private const float MatchWentAsyncToastSeconds = 2f;
 
         [SerializeField] private TMP_Text turnText;
         [SerializeField] private TMP_Text youAreText;
@@ -23,11 +28,8 @@ namespace TwoUp.UI
         [SerializeField] private Image[] cells;
         [Tooltip("7 column tap zones, left → right.")]
         [SerializeField] private Button[] columnButtons;
-        [SerializeField] private GameObject gameOverPanel;
-        [SerializeField] private TMP_Text resultText;
-        [SerializeField] private TMP_Text rematchStatusText;
-        [SerializeField] private Button rematchButton;
-        [SerializeField] private Button backButton;
+        [SerializeField] private Image turnTimerRing;
+        [SerializeField] private TMP_Text toastText;
 
         // TODO(contract): the contract doesn't say whether cells row 0 is the bottom or the
         // top of the board. We assume row 0 = bottom (gravity row); flip if the server differs.
@@ -41,6 +43,10 @@ namespace TwoUp.UI
         };
 
         private bool gameOver;
+        private bool ringLive;
+        private string lastNextPlayerId;
+        private float turnTimerRemaining = TurnTimerSeconds;
+        private Coroutine toastRoutine;
 
         private void Start()
         {
@@ -49,24 +55,32 @@ namespace TwoUp.UI
                 int column = c; // capture per-iteration
                 columnButtons[c].onClick.AddListener(() => OnColumnTapped(column));
             }
-            rematchButton.onClick.AddListener(OnRematch);
-            backButton.onClick.AddListener(OnBack);
-            gameOverPanel.SetActive(false);
 
             var net = NetworkClient.Instance;
             net.GameStateReceived += OnGameState;
             net.GameOverReceived += OnGameOver;
-            net.GameStartReceived += OnGameStart; // accepted rematch arrives as a fresh GameStart
-            net.RematchRequestReceived += OnRematchRequest;
+            net.MatchWentAsyncReceived += OnMatchWentAsync;
 
             int mySeat = Mathf.Clamp(MatchContext.MySeat, 0, 1);
             youAreText.text = $"You are {(mySeat == 0 ? "RED" : "YELLOW")}";
             youAreText.color = SeatColors[mySeat];
 
+            toastText.gameObject.SetActive(false);
+
+            // Resuming an async match: we don't know how much time is actually left server-side,
+            // so the ring stays hidden rather than showing a misleading fresh 30s.
+            ringLive = MatchContext.PendingResumeState == null;
+            turnTimerRing.gameObject.SetActive(ringLive);
+
             if (MatchContext.PendingGameStart != null)
             {
                 RenderStateBytes(MatchContext.PendingGameStart.InitialState);
                 MatchContext.PendingGameStart = null;
+            }
+            else if (MatchContext.PendingResumeState != null)
+            {
+                RenderStateBytes(MatchContext.PendingResumeState);
+                MatchContext.PendingResumeState = null;
             }
             else
             {
@@ -82,8 +96,15 @@ namespace TwoUp.UI
                 return;
             net.GameStateReceived -= OnGameState;
             net.GameOverReceived -= OnGameOver;
-            net.GameStartReceived -= OnGameStart;
-            net.RematchRequestReceived -= OnRematchRequest;
+            net.MatchWentAsyncReceived -= OnMatchWentAsync;
+        }
+
+        private void Update()
+        {
+            if (!ringLive || gameOver)
+                return;
+            turnTimerRemaining = Mathf.Max(0f, turnTimerRemaining - Time.deltaTime);
+            turnTimerRing.fillAmount = turnTimerRemaining / TurnTimerSeconds;
         }
 
         private void OnColumnTapped(int column)
@@ -139,6 +160,12 @@ namespace TwoUp.UI
                     v == 0 ? EmptyColor : SeatColors[Mathf.Clamp(v - 1, 0, 1)];
             }
 
+            if (state.NextPlayerId != lastNextPlayerId)
+            {
+                lastNextPlayerId = state.NextPlayerId;
+                turnTimerRemaining = TurnTimerSeconds;
+            }
+
             bool myTurn = state.NextPlayerId == NetworkClient.Instance.PlayerId;
             turnText.text = myTurn
                 ? "Your turn"
@@ -170,53 +197,26 @@ namespace TwoUp.UI
                 return;
             gameOver = true;
             SetColumnsInteractable(false);
-            AppStateMachine.Instance.SetResult();
-
-            string myId = NetworkClient.Instance.PlayerId;
-            if (msg.Result.Draw)
-                resultText.text = "Draw!";
-            else if (msg.Result.WinnerPlayerIds.Contains(myId))
-                resultText.text = "You win!";
-            else
-                resultText.text = "You lose";
-
-            rematchStatusText.text = "";
-            rematchButton.interactable = true;
+            turnTimerRing.gameObject.SetActive(false);
             turnText.text = "Game over";
-            gameOverPanel.SetActive(true);
+            MatchContext.LastGameOver = msg;
+            AppStateMachine.Instance.ToResult();
         }
 
-        private void OnRematch()
+        private void OnMatchWentAsync(MatchWentAsync msg)
         {
-            NetworkClient.Instance.Send(new Envelope
-            {
-                RematchRequest = new RematchRequest { MatchId = MatchContext.MatchId, Accept = true }
-            });
-            rematchStatusText.text = "Waiting for opponent...";
-            rematchButton.interactable = false;
-        }
-
-        private void OnRematchRequest(RematchRequest msg)
-        {
-            // Server relayed the opponent's rematch request; the Rematch button doubles as Accept.
-            if (msg.MatchId != MatchContext.MatchId || !gameOver)
+            if (msg.MatchId != MatchContext.MatchId)
                 return;
-            rematchStatusText.text = "Opponent wants a rematch!";
+            if (toastRoutine != null)
+                StopCoroutine(toastRoutine);
+            toastRoutine = StartCoroutine(ShowToastThenGoHome());
         }
 
-        private void OnGameStart(GameStart msg)
+        private IEnumerator ShowToastThenGoHome()
         {
-            // Fresh game (rematch accepted). Reset and render the initial state.
-            MatchContext.MatchId = msg.MatchId;
-            gameOver = false;
-            gameOverPanel.SetActive(false);
-            AppStateMachine.Instance.SetInGame();
-            RenderStateBytes(msg.InitialState);
-        }
-
-        private void OnBack()
-        {
-            // TODO(contract): no leave-match/forfeit message exists; we just return home.
+            toastText.text = "Match continues in Async Matches";
+            toastText.gameObject.SetActive(true);
+            yield return new WaitForSecondsRealtime(MatchWentAsyncToastSeconds);
             MatchContext.Clear();
             AppStateMachine.Instance.ToHome();
         }

@@ -5,12 +5,13 @@ using UnityEngine.UI;
 
 namespace TwoUp.EditorTools
 {
-    /// <summary>Authors ConnectFour.unity: 7x6 board, column tap zones, game-over/rematch panel.</summary>
+    /// <summary>Authors ConnectFour.unity: 7x6 board, column tap zones, turn timer ring, emote wheel.</summary>
     public static class ConnectFourSceneBuilder
     {
         private static readonly Vector2 Center = UiKit.Center;
 
-        public static void BuildConnectFourScene()
+        [MenuItem("2UP/Build Scenes/ConnectFour")]
+        public static void Build()
         {
             const int columns = ConnectFourController.Columns;
             const int rows = ConnectFourController.Rows;
@@ -21,12 +22,24 @@ namespace TwoUp.EditorTools
 
             var scene = UiKit.NewScene();
             var screen = UiKit.CreateCanvasWithScreen("Screen_Game");
+            var knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
 
             var turn = UiKit.CreateText(screen.transform, "TurnText", "Waiting for game state...", 60, Color.white);
             UiKit.Place(turn.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -130), new Vector2(950, 90));
 
             var youAre = UiKit.CreateText(screen.transform, "YouAreText", "", 42, Color.white);
             UiKit.Place(youAre.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -230), new Vector2(950, 60));
+
+            // Turn timer ring, next to TurnText (top-right corner so it never overlaps the centered label).
+            var ringGo = UiKit.CreateUIObject("Ring_TurnTimer", screen.transform);
+            var ring = ringGo.AddComponent<Image>();
+            ring.sprite = knob;
+            ring.type = Image.Type.Filled;
+            ring.fillMethod = Image.FillMethod.Radial360;
+            ring.fillAmount = 1f;
+            ring.color = Color.white;
+            ring.raycastTarget = false;
+            UiKit.Place(ringGo, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30, -120), new Vector2(110, 110));
 
             // Board: 7x6 grid of disc Images, display order top-left → bottom-right.
             var board = UiKit.CreatePanel(screen.transform, "Board", UiKit.BoardBg);
@@ -41,7 +54,6 @@ namespace TwoUp.EditorTools
             grid.startAxis = GridLayoutGroup.Axis.Horizontal;
             grid.childAlignment = TextAnchor.UpperLeft;
 
-            var knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
             var cellImages = new Image[rows * columns];
             for (int r = 0; r < rows; r++)
             {
@@ -80,40 +92,20 @@ namespace TwoUp.EditorTools
                 columnButtons[c] = btn;
             }
 
-            // Game-over / rematch panel (inactive by default; dim layer blocks board input).
-            var gameOver = UiKit.CreateUIObject("Panel_GameOver", screen.transform);
-            UiKit.StretchFull(gameOver);
-            var dim = gameOver.AddComponent<Image>();
-            dim.color = new Color(0f, 0f, 0f, 0.72f);
-            dim.raycastTarget = true;
+            UiKit.BuildEmoteWheel(screen.transform);
+            UiKit.BuildConnectionBadge(screen.transform);
 
-            var popup = UiKit.CreatePanel(gameOver.transform, "Popup", UiKit.PanelBg);
-            UiKit.Place(popup, Center, Center, Vector2.zero, new Vector2(860, 640));
-
-            var result = UiKit.CreateText(popup.transform, "ResultText", "", 72, Color.white);
-            UiKit.Place(result.gameObject, Center, Center, new Vector2(0, 190), new Vector2(700, 100));
-
-            var rematchStatus = UiKit.CreateText(popup.transform, "RematchStatusText", "", 38, new Color(0.8f, 0.84f, 0.92f));
-            UiKit.Place(rematchStatus.gameObject, Center, Center, new Vector2(0, 100), new Vector2(700, 60));
-
-            var rematch = UiKit.CreateButton(popup.transform, "RematchButton", "Rematch", new Vector2(560, 120), UiKit.ButtonBg);
-            UiKit.Place(rematch.gameObject, Center, Center, new Vector2(0, -30), new Vector2(560, 120));
-
-            var back = UiKit.CreateButton(popup.transform, "BackButton", "Back to Home", new Vector2(560, 120), UiKit.ButtonMuted);
-            UiKit.Place(back.gameObject, Center, Center, new Vector2(0, -180), new Vector2(560, 120));
-
-            gameOver.SetActive(false);
+            var toast = UiKit.CreateText(screen.transform, "Text_Toast", "", 40, Color.white);
+            UiKit.Place(toast.gameObject, Center, Center, Vector2.zero, new Vector2(800, 100));
+            toast.gameObject.SetActive(false);
 
             var controller = screen.AddComponent<ConnectFourController>();
             UiKit.SetRef(controller, "turnText", turn);
             UiKit.SetRef(controller, "youAreText", youAre);
             UiKit.SetArray(controller, "cells", cellImages);
             UiKit.SetArray(controller, "columnButtons", columnButtons);
-            UiKit.SetRef(controller, "gameOverPanel", gameOver);
-            UiKit.SetRef(controller, "resultText", result);
-            UiKit.SetRef(controller, "rematchStatusText", rematchStatus);
-            UiKit.SetRef(controller, "rematchButton", rematch);
-            UiKit.SetRef(controller, "backButton", back);
+            UiKit.SetRef(controller, "turnTimerRing", ring);
+            UiKit.SetRef(controller, "toastText", toast);
 
             UiKit.SaveScene(scene, "ConnectFour");
             UiKit.AddSceneToBuildSettings("Assets/Scenes/ConnectFour.unity");
