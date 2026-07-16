@@ -216,9 +216,9 @@ namespace TwoUp.UI
 
         private void OnBack()
         {
-            // TODO(contract): no leave-match/forfeit message exists; we just return to the lobby.
+            // TODO(contract): no leave-match/forfeit message exists; we just return home.
             MatchContext.Clear();
-            AppStateMachine.Instance.ToLobby();
+            AppStateMachine.Instance.ToHome();
         }
     }
 }
