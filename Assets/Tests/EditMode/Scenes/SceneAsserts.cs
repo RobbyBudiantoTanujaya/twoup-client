@@ -20,6 +20,25 @@ namespace TwoUp.Tests.EditMode.Scenes
             return go;
         }
 
+        /// <summary>
+        /// Like AssertObject, but walks the hierarchy via Transform.Find so it also finds
+        /// inactive GameObjects along the path (GameObject.Find skips inactive objects entirely).
+        /// </summary>
+        public static GameObject AssertObjectIncludingInactive(string hierarchyPath)
+        {
+            string[] segments = hierarchyPath.Split('/');
+            var root = GameObject.Find(segments[0]);
+            Assert.IsNotNull(root, $"Expected root GameObject '{segments[0]}' (path '{hierarchyPath}')");
+
+            var current = root.transform;
+            for (int i = 1; i < segments.Length; i++)
+            {
+                current = current.Find(segments[i]);
+                Assert.IsNotNull(current, $"Expected GameObject at hierarchy path '{hierarchyPath}' (missing segment '{segments[i]}')");
+            }
+            return current.gameObject;
+        }
+
         public static void AssertRefNotNull(Component c, string fieldName)
         {
             Assert.IsNotNull(c, $"Component is null when checking field '{fieldName}'");
