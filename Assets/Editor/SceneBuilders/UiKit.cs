@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using TwoUp.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -183,6 +184,60 @@ namespace TwoUp.EditorTools
 
             row.SetActive(false);
             return row;
+        }
+
+        // ---------------------------------------------------------------- shared HUD widgets
+
+        /// <summary>
+        /// Toggle button (bottom-right corner) + inactive 3x2 emote grid panel + bottom-center
+        /// incoming-emote text, wired onto a new "EmoteWheel" child of screenRoot.
+        /// </summary>
+        public static EmoteWheelController BuildEmoteWheel(Transform screenRoot)
+        {
+            var root = CreateUIObject("EmoteWheel", screenRoot);
+            StretchFull(root);
+
+            var toggle = CreateButton(root.transform, "EmoteToggleButton", "EMOTE", new Vector2(96, 96), ButtonBg);
+            Place(toggle.gameObject, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-24, 24), new Vector2(96, 96));
+
+            var wheelPanel = CreatePanel(root.transform, "EmoteWheelPanel", PanelBg);
+            Place(wheelPanel, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-24, 140), new Vector2(420, 280));
+            var grid = wheelPanel.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(130, 130);
+            grid.spacing = new Vector2(10, 10);
+            grid.padding = new RectOffset(10, 10, 10, 10);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 3;
+
+            var emoteLabels = new[] { "+1", "LOL", "WOW", "CRY", "FIRE", "GG" };
+            var emoteButtons = new Button[emoteLabels.Length];
+            for (int i = 0; i < emoteLabels.Length; i++)
+                emoteButtons[i] = CreateButton(wheelPanel.transform, $"EmoteButton_{i}", emoteLabels[i], new Vector2(130, 130), ButtonMuted);
+            wheelPanel.SetActive(false);
+
+            var incomingText = CreateText(root.transform, "IncomingEmoteText", "", 36, Color.white);
+            Place(incomingText.gameObject, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 24), new Vector2(760, 70));
+
+            var controller = root.AddComponent<EmoteWheelController>();
+            SetRef(controller, "toggleButton", toggle);
+            SetRef(controller, "wheelPanel", wheelPanel);
+            SetArray(controller, "emoteButtons", emoteButtons);
+            SetRef(controller, "incomingEmoteText", incomingText);
+            return controller;
+        }
+
+        /// <summary>Small connection status badge (top-left corner), wired onto a new "ConnectionBadge" child of screenRoot.</summary>
+        public static ConnectionIndicator BuildConnectionBadge(Transform screenRoot)
+        {
+            var badge = CreatePanel(screenRoot, "ConnectionBadge", PanelBg);
+            Place(badge, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24, -24), new Vector2(120, 48));
+
+            var label = CreateText(badge.transform, "Label", "", 28, Color.white);
+            StretchFull(label.gameObject);
+
+            var controller = badge.AddComponent<ConnectionIndicator>();
+            SetRef(controller, "label", label);
+            return controller;
         }
 
         // ---------------------------------------------------------------- layout
