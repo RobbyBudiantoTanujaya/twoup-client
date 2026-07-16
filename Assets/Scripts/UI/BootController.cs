@@ -11,6 +11,7 @@ namespace TwoUp.UI
     {
         [SerializeField] private TMP_Text statusText;
         [SerializeField] private Button retryButton;
+        [SerializeField] private PushTokenClient pushTokenClient;
 
         private void Start()
         {
@@ -57,7 +58,11 @@ namespace TwoUp.UI
         private void OnServerHello(ServerHello hello)
         {
             statusText.text = $"Connected as {hello.PlayerId}";
-            AppStateMachine.Instance.ToLobby();
+            pushTokenClient.OnIdentified();
+            if (!string.IsNullOrEmpty(MatchContext.PendingRoomCode))
+                AppStateMachine.Instance.ToInvite();
+            else
+                AppStateMachine.Instance.ToHome();
         }
 
         private void OnDisconnected()
