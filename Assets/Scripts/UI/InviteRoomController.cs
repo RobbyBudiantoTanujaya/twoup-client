@@ -87,6 +87,9 @@ namespace TwoUp.UI
         private void OnPairFound(PairFound msg)
         {
             MatchContext.PairId = msg.PairId;
+            MatchContext.PairMilestoneTier = msg.MilestoneTier;
+            MatchContext.PairDuoLevel = msg.DuoLevel;
+            MatchContext.PairTotalMatches = msg.TotalMatches;
             AppStateMachine.Instance.ToVoting();
         }
 
