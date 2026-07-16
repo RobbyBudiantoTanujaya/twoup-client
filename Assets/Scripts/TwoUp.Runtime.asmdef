@@ -1,0 +1,18 @@
+{
+    "name": "TwoUp.Runtime",
+    "rootNamespace": "TwoUp",
+    "references": [
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "endel.nativewebsocket"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
