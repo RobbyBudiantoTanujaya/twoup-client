@@ -522,10 +522,10 @@ LOGIKA/batch (gate). Depends on: "CHECKPOINT GATE VISUAL". Jalankan build Androi
 - EditMode suite penuh tetap hijau.
 
 <!-- ccq:progress:start -->
-## CCQ Progress — 1/32 selesai
+## CCQ Progress — 2/32 selesai
 
 - [x] `t_0716_0035_3d71df3c` Struktur asmdef + test scaffolding EditMode
-- [ ] `t_0716_0035_8ee99a99` Extend proto kontrak per TDD 3.1 + regen C#
+- [x] `t_0716_0035_8ee99a99` Extend proto kontrak per TDD 3.1 + regen C#
 - [ ] `t_0716_0035_a2737e00` RateGate + extend NetworkClient (event baru, SendRateLimited, ping interval)
 - [ ] `t_0716_0035_7da194ac` GameCatalog ScriptableObject + asset seed
 - [ ] `t_0716_0035_2d08f139` Extend MatchContext + AppStateMachine (state & routing baru)
