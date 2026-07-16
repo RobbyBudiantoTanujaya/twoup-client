@@ -142,6 +142,37 @@ namespace TwoUp.EditorTools
             return btn;
         }
 
+        /// <summary>UGUI Toggle: Background (UISprite) + Checkmark (Checkmark.psd) + trailing TMP label.</summary>
+        public static Toggle CreateToggle(Transform parent, string name, string label)
+        {
+            var go = CreateUIObject(name, parent);
+            ((RectTransform)go.transform).sizeDelta = new Vector2(700, 90);
+            var toggle = go.AddComponent<Toggle>();
+
+            var bg = CreateUIObject("Background", go.transform);
+            var bgImg = bg.AddComponent<Image>();
+            bgImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            bgImg.type = Image.Type.Sliced;
+            bgImg.color = Color.white;
+            Place(bg, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(30, 0), new Vector2(60, 60));
+
+            var checkmark = CreateUIObject("Checkmark", bg.transform);
+            var checkImg = checkmark.AddComponent<Image>();
+            checkImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
+            checkImg.color = ButtonBg;
+            StretchFull(checkmark);
+
+            toggle.targetGraphic = bgImg;
+            toggle.graphic = checkImg;
+            toggle.isOn = false;
+
+            var labelText = CreateText(go.transform, "Label", label, 40, Color.white);
+            labelText.alignment = TextAlignmentOptions.MidlineLeft;
+            Place(labelText.gameObject, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(100, 0), new Vector2(560, 60));
+
+            return toggle;
+        }
+
         public static TMP_InputField CreateInputField(Transform parent, string name, string placeholder, int charLimit)
         {
             var resources = new TMP_DefaultControls.Resources
