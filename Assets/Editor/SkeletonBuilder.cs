@@ -23,7 +23,7 @@ namespace TwoUp.EditorTools
             ImportTmpEssentials();
             CreateServerConfig();
             BootSceneBuilder.BuildBootScene();
-            ConnectFourSceneBuilder.BuildConnectFourScene();
+            ConnectFourSceneBuilder.Build();
             HomeSceneBuilder.Build();
             InviteRoomSceneBuilder.Build();
             QueueSceneBuilder.Build();

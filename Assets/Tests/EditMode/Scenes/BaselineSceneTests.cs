@@ -2,6 +2,7 @@ using NUnit.Framework;
 using TwoUp.Net;
 using TwoUp.UI;
 using UnityEditor;
+using UnityEngine.UI;
 
 namespace TwoUp.Tests.EditMode.Scenes
 {
@@ -50,6 +51,37 @@ namespace TwoUp.Tests.EditMode.Scenes
             Assert.AreEqual(7, columnButtons.arraySize, "Expected 7 column buttons");
             for (int i = 0; i < columnButtons.arraySize; i++)
                 Assert.IsNotNull(columnButtons.GetArrayElementAtIndex(i).objectReferenceValue, $"columnButtons[{i}] not wired");
+        }
+
+        [Test]
+        public void ConnectFour_HasTimerRingAndEmoteWheel()
+        {
+            SceneAsserts.OpenScene("Assets/Scenes/ConnectFour.unity");
+
+            var screen = SceneAsserts.AssertObject("UICanvas/Screen_Game");
+            var controller = screen.GetComponent<ConnectFourController>();
+            Assert.IsNotNull(controller, "Screen_Game is missing ConnectFourController");
+
+            var ringGo = SceneAsserts.AssertObject("UICanvas/Screen_Game/Ring_TurnTimer");
+            var ringImage = ringGo.GetComponent<Image>();
+            Assert.IsNotNull(ringImage, "Ring_TurnTimer is missing an Image component");
+            Assert.AreEqual(Image.Type.Filled, ringImage.type, "Ring_TurnTimer Image should be type=Filled");
+            Assert.AreEqual(Image.FillMethod.Radial360, ringImage.fillMethod, "Ring_TurnTimer Image should use fillMethod=Radial360");
+            SceneAsserts.AssertRefNotNull(controller, "turnTimerRing");
+
+            var emoteWheelGo = SceneAsserts.AssertObject("UICanvas/Screen_Game/EmoteWheel");
+            Assert.IsNotNull(emoteWheelGo.GetComponent<EmoteWheelController>(), "EmoteWheel is missing EmoteWheelController");
+
+            SceneAsserts.AssertRefNotNull(controller, "toastText");
+        }
+
+        [Test]
+        public void ConnectFour_NoLegacyGameOverPanel()
+        {
+            SceneAsserts.OpenScene("Assets/Scenes/ConnectFour.unity");
+
+            var screen = SceneAsserts.AssertObject("UICanvas/Screen_Game");
+            Assert.IsNull(screen.transform.Find("Panel_GameOver"), "Legacy Panel_GameOver should be removed from ConnectFour scene");
         }
     }
 }
