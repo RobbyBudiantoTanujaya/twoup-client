@@ -23,5 +23,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Voting.unity
     guid: 7c126d6398985494cae6becb893d64cd
+  - enabled: 1
+    path: Assets/Scenes/Result.unity
+    guid: 786ecf49b63a0184a884372e2291de64
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
