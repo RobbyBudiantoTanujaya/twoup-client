@@ -522,7 +522,7 @@ LOGIKA/batch (gate). Depends on: "CHECKPOINT GATE VISUAL". Jalankan build Androi
 - EditMode suite penuh tetap hijau.
 
 <!-- ccq:progress:start -->
-## CCQ Progress — 26/32 selesai
+## CCQ Progress — 27/32 selesai
 
 - [x] `t_0716_0035_3d71df3c` Struktur asmdef + test scaffolding EditMode
 - [x] `t_0716_0035_8ee99a99` Extend proto kontrak per TDD 3.1 + regen C#
@@ -550,7 +550,7 @@ LOGIKA/batch (gate). Depends on: "CHECKPOINT GATE VISUAL". Jalankan build Androi
 - [x] `t_0716_0035_a68f8c0d` Scene Settings (S10)
 - [x] `t_0716_0035_023a20a9` Extend scene ConnectFour - turn timer ring, emote wheel, jalur async
 - [x] `t_0716_0035_09be9778` Scene ReflexDuel (S6-RD)
-- [ ] `t_0716_0035_dbdd042f` Scene AirHockey (S6-AH)
+- [x] `t_0716_0035_dbdd042f` Scene AirHockey (S6-AH)
 - [ ] `t_0716_0035_5e5491c1` Scene WallDefense (S6-WD)
 - [ ] `t_0716_0035_a1a7f548` Scene KeepUpDuo (S6-KU)
 - [ ] `t_0716_0035_a6c9041c` Scene Battleship (S6-BS)
