@@ -29,6 +29,7 @@ namespace TwoUp.EditorTools
             QueueSceneBuilder.Build();
             VotingSceneBuilder.Build();
             ResultSceneBuilder.Build();
+            AsyncMatchesSceneBuilder.Build();
             ConfigurePlayerSettings();
             AssetDatabase.SaveAssets();
             Debug.Log("[SkeletonBuilder] BuildAll complete");
