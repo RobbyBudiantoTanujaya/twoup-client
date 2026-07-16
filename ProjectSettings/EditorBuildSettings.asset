@@ -41,5 +41,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ReflexDuel.unity
     guid: 19ae950d8dfb56544b2d39b4df44170e
+  - enabled: 1
+    path: Assets/Scenes/AirHockey.unity
+    guid: dd984ac83e045e84fa5d339f80f8e920
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
