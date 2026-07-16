@@ -522,7 +522,7 @@ LOGIKA/batch (gate). Depends on: "CHECKPOINT GATE VISUAL". Jalankan build Androi
 - EditMode suite penuh tetap hijau.
 
 <!-- ccq:progress:start -->
-## CCQ Progress — 12/32 selesai
+## CCQ Progress — 13/32 selesai
 
 - [x] `t_0716_0035_3d71df3c` Struktur asmdef + test scaffolding EditMode
 - [x] `t_0716_0035_8ee99a99` Extend proto kontrak per TDD 3.1 + regen C#
@@ -536,7 +536,7 @@ LOGIKA/batch (gate). Depends on: "CHECKPOINT GATE VISUAL". Jalankan build Androi
 - [x] `t_0716_0035_8b549654` Platform plumbing - DeepLinkRouter, PushTokenClient, provider stub ads/IAP
 - [x] `t_0716_0035_38edeebf` CHECKPOINT GATE LOGIKA - suite EditMode penuh hijau headless
 - [x] `t_0716_0035_4e56267c` Refactor builder - UiKit + per-scene builder + SceneAsserts
-- [ ] `t_0716_0035_dd31e0c3` Shared HUD kit - EmoteWheelController + ConnectionIndicator + builder helper
+- [x] `t_0716_0035_dd31e0c3` Shared HUD kit - EmoteWheelController + ConnectionIndicator + builder helper
 - [ ] `t_0716_0035_51124738` Scene Home (S2)
 - [ ] `t_0716_0035_cf1ecfeb` Extend scene Boot - App wiring baru + alur ke Home
 - [ ] `t_0716_0035_59367503` Retire Lobby - hapus scene, controller, builder
