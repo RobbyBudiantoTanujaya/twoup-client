@@ -23,6 +23,10 @@ namespace TwoUp.Net
         public string devUrl = "ws://10.0.2.2:8080/ws";
         public string stagingUrl = ""; // TODO: fill in once a staging server exists
 
+        [Header("Invite links")]
+        [Tooltip("Placeholder — final domain is Blocker B2 in the TDD.")]
+        public string inviteLinkBase = "https://2up.example/r/";
+
         public string ActiveUrl => activeEnvironment == Env.Staging ? stagingUrl : devUrl;
     }
 }

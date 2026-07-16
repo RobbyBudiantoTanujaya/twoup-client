@@ -4,6 +4,7 @@
     "references": [
         "TwoUp.Runtime",
         "TwoUp.Editor",
+        "Unity.TextMeshPro",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

@@ -25,6 +25,8 @@ namespace TwoUp.Net
 
         public bool IsConnected => socket != null && socket.State == WebSocketState.Open;
 
+        public string InviteLinkBase => serverConfig.inviteLinkBase;
+
         public event Action Connected;
         public event Action Disconnected;
         public event Action<ServerHello> ServerHelloReceived;
