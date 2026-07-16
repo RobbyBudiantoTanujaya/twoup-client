@@ -26,5 +26,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Result.unity
     guid: 786ecf49b63a0184a884372e2291de64
+  - enabled: 1
+    path: Assets/Scenes/AsyncList.unity
+    guid: a4e9081f8cd28ec469b369093536e06d
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
