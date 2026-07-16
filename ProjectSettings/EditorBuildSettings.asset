@@ -44,5 +44,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/AirHockey.unity
     guid: dd984ac83e045e84fa5d339f80f8e920
+  - enabled: 1
+    path: Assets/Scenes/WallDefense.unity
+    guid: 282a3af403457ae458535cb49f26096e
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
