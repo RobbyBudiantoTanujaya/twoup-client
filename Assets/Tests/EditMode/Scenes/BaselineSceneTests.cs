@@ -14,13 +14,18 @@ namespace TwoUp.Tests.EditMode.Scenes
 
             var app = SceneAsserts.AssertObject("App");
             Assert.IsNotNull(app.GetComponent<NetworkClient>(), "App is missing NetworkClient");
-            Assert.IsNotNull(app.GetComponent<AppStateMachine>(), "App is missing AppStateMachine");
+            var stateMachine = app.GetComponent<AppStateMachine>();
+            Assert.IsNotNull(stateMachine, "App is missing AppStateMachine");
+            Assert.IsNotNull(app.GetComponent<DeepLinkRouter>(), "App is missing DeepLinkRouter");
+            Assert.IsNotNull(app.GetComponent<PushTokenClient>(), "App is missing PushTokenClient");
+            SceneAsserts.AssertRefNotNull(stateMachine, "catalog");
 
             var screen = SceneAsserts.AssertObject("UICanvas/Screen_Boot");
             var controller = screen.GetComponent<BootController>();
             Assert.IsNotNull(controller, "Screen_Boot is missing BootController");
             SceneAsserts.AssertRefNotNull(controller, "statusText");
             SceneAsserts.AssertRefNotNull(controller, "retryButton");
+            SceneAsserts.AssertRefNotNull(controller, "pushTokenClient");
         }
 
         [Test]

@@ -9,6 +9,7 @@ namespace TwoUp.EditorTools
     public static class BootSceneBuilder
     {
         private const string ServerConfigPath = "Assets/Config/ServerConfig.asset";
+        private const string GameCatalogPath = "Assets/Config/GameCatalog.asset";
         private static readonly Vector2 Center = UiKit.Center;
 
         public static void BuildBootScene()
@@ -18,9 +19,13 @@ namespace TwoUp.EditorTools
             // Persistent App object: exists only here; DontDestroyOnLoad at runtime.
             var app = new GameObject("App");
             var net = app.AddComponent<NetworkClient>();
-            app.AddComponent<AppStateMachine>();
+            var stateMachine = app.AddComponent<AppStateMachine>();
+            app.AddComponent<DeepLinkRouter>();
+            var pushTokenClient = app.AddComponent<PushTokenClient>();
             var config = AssetDatabase.LoadAssetAtPath<ServerConfig>(ServerConfigPath);
             UiKit.SetRef(net, "serverConfig", config);
+            var catalog = AssetDatabase.LoadAssetAtPath<GameCatalog>(GameCatalogPath);
+            UiKit.SetRef(stateMachine, "catalog", catalog);
 
             var screen = UiKit.CreateCanvasWithScreen("Screen_Boot");
 
@@ -38,6 +43,7 @@ namespace TwoUp.EditorTools
             var controller = screen.AddComponent<BootController>();
             UiKit.SetRef(controller, "statusText", status);
             UiKit.SetRef(controller, "retryButton", retry);
+            UiKit.SetRef(controller, "pushTokenClient", pushTokenClient);
 
             UiKit.SaveScene(scene, "Boot");
             UiKit.AddSceneToBuildSettings("Assets/Scenes/Boot.unity");
