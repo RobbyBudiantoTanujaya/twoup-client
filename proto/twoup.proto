@@ -18,9 +18,40 @@ message Envelope { oneof payload {
   GameState game_state = 22;
   GameOver game_over = 23;
   RematchRequest rematch_request = 30;
+  RematchStatusUpdate rematch_status_update = 31; // adjacent ke RematchRequest=30, bukan blok voting
   Ping ping = 40;
   Pong pong = 41;
   Error error = 50;
+  PairFound        pair_found         = 60;
+  VoteGame         vote_game          = 61;
+  VoteUpdate       vote_update        = 62;
+  VotingLocked     voting_locked      = 63;
+  VotingShowdown   voting_showdown    = 64;
+  ShowdownPick     showdown_pick      = 65;
+  VotingCancelled  voting_cancelled   = 66;
+  StartBotMatch    start_bot_match    = 67;
+  RoomJoinPending   room_join_pending  = 70;
+  RoomExpired       room_expired       = 71;
+  ListAsyncMatches  list_async_matches = 72;
+  AsyncMatchList    async_match_list   = 73;
+  ResumeAsyncMatch  resume_async_match = 74;
+  MatchResumed      match_resumed      = 75;
+  MatchWentAsync    match_went_async   = 76;
+  EmoteSend         emote_send         = 80;
+  EmoteBroadcast    emote_broadcast    = 81;
+  // Meta-systems (Profile/Shop/Settings/push) — TDD §3.1.7
+  GetProfile        get_profile        = 90;
+  ProfileData       profile_data       = 91;
+  GetPairDetail     get_pair_detail    = 92;
+  PairDetail        pair_detail        = 93;
+  GetShop           get_shop           = 94;
+  ShopData          shop_data          = 95;
+  ClaimAdTicket     claim_ad_ticket    = 96;
+  WalletUpdate      wallet_update      = 97;
+  PurchaseItem      purchase_item      = 98;
+  SetProfile        set_profile        = 99;
+  RegisterPushToken register_push_token = 100;
+  PremiumPurchased  premium_purchased  = 101;
 }}
 message ClientHello { string device_id = 1; string display_name = 2; }
 message ServerHello { string player_id = 1; }
@@ -28,15 +59,31 @@ message JoinQueue {}
 message LeaveQueue {}
 message CreateRoom {}
 message JoinRoom { string room_code = 1; }
-message RoomCreated { string room_code = 1; }
+message RoomCreated {
+  string room_code = 1;
+  int64 expires_at_unix_ms = 2;   // NEW — TTL reservasi, TDD §3.1.4
+}
 message PlayerInfo { string player_id = 1; string display_name = 2; int32 team_id = 3; int32 seat = 4; bool is_bot = 5; }
 message MatchFound { string match_id = 1; repeated PlayerInfo players = 2; string game_id = 3; }
 message GameStart { string match_id = 1; bytes initial_state = 2; }
 message GameInput { string match_id = 1; bytes input = 2; }   // game-specific payload, for connect_four: ConnectFourInput
 message GameState { string match_id = 1; bytes state = 2; }
-message GameResult { repeated string winner_player_ids = 1; bool draw = 2; }
+message GameResult {
+  repeated string winner_player_ids = 1;
+  bool draw = 2;
+  int32 co_op_score = 3;      // NEW — skor bersama untuk game co-op (WD, KU); 0 untuk game versus
+  bool co_op_new_best = 4;    // NEW — true kalau co_op_score memecahkan PairDuoScore.best_score pasangan ini
+}
 message GameOver { string match_id = 1; GameResult result = 2; }
-message RematchRequest { string match_id = 1; bool accept = 2; }
+message RematchRequest {
+  string match_id = 1;
+  bool accept = 2;             // v0: false = decline/leave (perilaku tidak berubah)
+  RematchChoice choice = 3;    // NEW — default 0 = REMATCH_SAME_GAME, cocok dengan makna v0 accept=true
+}
+enum RematchChoice {
+  REMATCH_SAME_GAME = 0;
+  NEXT_GAME = 1;
+}
 message Ping { int64 ts = 1; }
 message Pong { int64 ts = 1; }
 message Error { string code = 1; string message = 2; }
@@ -44,3 +91,258 @@ message Error { string code = 1; string message = 2; }
 // connect four payloads (same file or connect_four.proto in same package)
 message ConnectFourInput { int32 column = 1; }
 message ConnectFourState { repeated int32 cells = 1; string next_player_id = 2; } // 7x6, row-major, 0 empty / seat+1
+
+// ==========================================================================
+// TDD §3.1.2 — Voting (pairing -> game select)
+// ==========================================================================
+
+// Vs Bot (GDD S2/S5, mode eksplisit): melewati Pairing/voting sepenuhnya —
+// server pilih bot random dari bot_profile dengan tier+game tsb, langsung
+// Service.StartMatch. Balasan sukses = MatchFound+GameStart seperti biasa.
+message StartBotMatch {
+  string game_id = 1;
+  string tier = 2;      // "easy" | "medium" | "hard"
+}
+
+// Dikirim ke participant yang MASIH terhubung saat match live dikonversi ke
+// async (grace habis, §6.4) — client keluar dari scene game, kembali ke Home,
+// badge S11 bertambah.
+message MatchWentAsync { string match_id = 1; string game_id = 2; }
+
+// Dikirim server->kedua pemain begitu pairing terbentuk (queue match atau room
+// join), SEBELUM game dipilih. Menggantikan MatchFound sebagai sinyal
+// "pairing terbentuk" — MatchFound v0 sekarang dikirim setelah COUNTDOWN
+// selesai, di dalam startGame() (§4.2), bukan saat pairing.
+// Membawa data badge pasangan untuk header S5 (GDD 6.1: milestone/duo level
+// tampil di atas grid voting).
+message PairFound {
+  string pair_id = 1;
+  repeated PlayerInfo players = 2;
+  string milestone_tier = 3;   // none|rivals|arch_rivals|nemesis (baris agregat pair_ledger)
+  int32 duo_level = 4;         // 1-5 dari total co-op match pasangan
+  int32 total_matches = 5;     // agregat versus+co-op
+}
+message VoteGame { string pair_id = 1; string game_id = 2; }               // client -> server
+message VoteUpdate {
+  string pair_id = 1;
+  map<string, string> votes_by_player_id = 2;  // player_id -> game_id, live reflect (GDD 6.1.1)
+}
+message VotingLocked {
+  string pair_id = 1;
+  string game_id = 2;
+  int32 countdown_ms = 3;   // 3000, client menghitung mundur lokal (§6.1)
+}
+message VotingShowdown {
+  string pair_id = 1;
+  repeated string candidate_game_ids = 2;  // selalu 2 entri
+  int64 deadline_unix_ms = 3;
+}
+message ShowdownPick { string pair_id = 1; string game_id = 2; }           // client -> server, tap kartu lawan
+message VotingCancelled { string pair_id = 1; string reason = 2; }         // reason: "opponent_left"
+message RematchStatusUpdate {
+  string match_id = 1;
+  string player_id = 2;
+  RematchChoice choice = 3;
+}
+
+// ==========================================================================
+// TDD §3.1.3 — Async + push
+// ==========================================================================
+
+message ListAsyncMatches {}   // client -> server, buka S11
+message AsyncMatchSummary {
+  string match_id = 1;
+  string game_id = 2;
+  string opponent_player_id = 3;
+  string opponent_display_name = 4;
+  bool your_turn = 5;
+  int64 forfeit_deadline_unix_ms = 6;
+}
+message AsyncMatchList { repeated AsyncMatchSummary matches = 1; }         // server -> client
+message ResumeAsyncMatch { string match_id = 1; }                          // client -> server, tap match di S11 atau deep-link dari push
+message MatchResumed {                                                     // server -> client yang resume/reconnect
+  string match_id = 1;
+  string game_id = 2;
+  bytes state = 3;              // GameState.state format sama seperti biasa
+  int32 grace_seconds_remaining = 4;  // untuk resume live disconnect; 0 kalau resume dari async cold
+}
+
+// ==========================================================================
+// TDD §3.1.4 — Room / invite
+// ==========================================================================
+
+message RoomJoinPending { string room_code = 1; string invitee_display_name = 2; }  // -> host, live ATAU trigger FCM invitee_joined kalau host offline
+message RoomExpired { string room_code = 1; }
+
+// ==========================================================================
+// TDD §3.1.5 — Emote
+// ==========================================================================
+
+message EmoteSend      { string match_id = 1; string emote_id = 2; }               // client -> server
+message EmoteBroadcast { string match_id = 1; string player_id = 2; string emote_id = 3; }  // server -> keduanya
+
+// ==========================================================================
+// TDD §3.1.6 — Per-game payload, 5 game baru
+// ==========================================================================
+// Semua pesan berikut BUKAN anggota Envelope oneof (sama seperti
+// ConnectFourInput/ConnectFourState v0) — mereka di-marshal ke
+// GameInput.input / GameState.state bytes oleh masing-masing Game
+// implementation, sesuai pola yang sudah ada.
+
+// --- Reflex Duel ---
+// Tap sengaja tidak membawa timestamp: adjudikasi memakai waktu terima server
+// + kompensasi RTT/2 (§4.7); clock client tidak bisa dipercaya.
+message ReflexDuelInput {}
+enum ReflexRoundPhase { RD_WAITING = 0; RD_ARMED = 1; RD_RESOLVED = 2; }
+message ReflexDuelState {
+  ReflexRoundPhase phase = 1;
+  int32 round_index = 2;              // 0-4 (best-of-5)
+  int32 score_seat0 = 3;
+  int32 score_seat1 = 4;
+  int64 go_server_ts_ms = 5;          // 0 kalau belum ARMED
+  int32 last_round_winner_seat = 6;   // -1 = belum ada round selesai
+  int32 last_round_ms_seat0 = 7;
+  int32 last_round_ms_seat1 = 8;
+  bool last_round_false_start_seat0 = 9;
+  bool last_round_false_start_seat1 = 10;
+}
+
+// --- Air Hockey ---
+message AirHockeyInput { float mallet_x = 1; float mallet_y = 2; }   // koordinat logis, 0-1080 lebar meja
+message AirHockeyState {
+  float puck_x = 1; float puck_y = 2; float puck_vx = 3; float puck_vy = 4;
+  float mallet_seat0_x = 5; float mallet_seat0_y = 6;
+  float mallet_seat1_x = 7; float mallet_seat1_y = 8;
+  int32 score_seat0 = 9; int32 score_seat1 = 10;
+  int32 time_remaining_ms = 11;
+  bool sudden_death = 12;
+}
+
+// --- Wall Defense ---
+message WallDefenseInput { float paddle_x = 1; }   // paddle geser 1 sumbu di depan gawang sendiri
+message WDBall { float x = 1; float y = 2; float vx = 3; float vy = 4; int32 target_seat = 5; }
+message WallDefenseState {
+  float paddle_seat0_x = 1;
+  float paddle_seat1_x = 2;
+  repeated WDBall balls = 3;
+  int32 lives = 4;
+  int32 wave = 5;
+  int32 score = 6;
+  bool wave_transition = 7;
+}
+
+// --- Keep-Up Duo ---
+// [DECIDED: kontrol paddle-drag dipilih sebagai default engineering — lihat
+// Blocker B1 TDD §11, kontrol final tunduk pada fase design.]
+message KeepUpDuoInput { float paddle_x = 1; }
+message KeepUpDuoState {
+  float ball_x = 1; float ball_y = 2; float ball_vx = 3; float ball_vy = 4;
+  float paddle_seat0_x = 5;
+  float paddle_seat1_x = 6;
+  int32 score = 7;
+  int32 last_toucher_seat = 8;   // -1 = belum ada sentuhan; aturan alternasi AC-KU-02 dicek server dari field ini
+  bool game_over = 9;
+}
+
+// --- Battleship ---
+message ShipPlacement { int32 length = 1; int32 row = 2; int32 col = 3; bool horizontal = 4; }
+message BattleshipPlaceInput { repeated ShipPlacement ships = 1; }   // 5 entri: length 5,4,3,3,2
+message BattleshipFireInput  { int32 row = 1; int32 col = 2; }
+enum BattleshipPhase { BS_PLACEMENT = 0; BS_FIRING = 1; BS_FINISHED = 2; }
+// State PER-PEMAIN (lihat game.PerPlayerGame §4.2) — fog of war: my_ships hanya
+// terisi untuk pemilik state ini, opponent_shots_result tidak membocorkan
+// posisi kapal opponent yang belum kena.
+message BattleshipState {
+  BattleshipPhase phase = 1;
+  bool my_placement_locked = 2;
+  bool opponent_placement_locked = 3;
+  repeated int32 my_shots_result = 4;        // 100 sel row-major, tembakan SAYA ke opponent: 0 unshot/1 miss/2 hit/3 sunk
+  repeated int32 shots_against_me = 5;       // 100 sel, tembakan opponent ke saya, encoding sama
+  repeated int32 my_fleet = 6;               // 100 sel, layout armada SAYA: 0 kosong / 1-5 = ship id, HANYA di state milik saya
+  string next_player_id = 7;                 // hanya valid saat phase=BS_FIRING
+  repeated string my_ships_sunk_by_opponent = 8;  // nama kapal SAYA yang sudah tenggelam (opponent lihat ini via shots_against_me)
+}
+
+// ==========================================================================
+// TDD §3.1.7 — Meta-systems: Profile/Ledger, Shop/Wallet, Settings, push token
+// ==========================================================================
+// Kontrak untuk S8/S9/S10 (satu-satunya kanal adalah WebSocket yang sama;
+// tidak ada REST untuk client).
+
+// --- Profile & ledger (S8) ---
+message GetProfile {}   // client -> server; jawaban: ProfileData
+message ProfileData {
+  PlayerInfo me = 1;
+  string avatar_id = 2;            // key asset-list, mis. "avatar_preset_03"
+  string frame_id = 3;             // key asset-list, mis. "frame_default"
+  bool premium = 4;
+  int32 bot_wins = 5;              // stat pribadi vs bot (GDD 5.1)
+  int32 bot_losses = 6;
+  int32 bot_draws = 7;
+  repeated PairSummary pairs = 8;  // daftar rivalry, urut last_played_at desc
+}
+message PairSummary {
+  string other_player_id = 1;
+  string other_display_name = 2;
+  string other_avatar_id = 3;
+  int32 wins_mine = 4;             // baris agregat all-games, dari sudut pandang peminta
+  int32 wins_theirs = 5;
+  int32 draws = 6;
+  int32 total_matches = 7;         // versus+co-op (basis milestone)
+  string milestone_tier = 8;       // none|rivals|arch_rivals|nemesis
+  int32 duo_level = 9;             // 1-5
+  int64 last_played_at_unix_ms = 10;
+}
+message GetPairDetail { string other_player_id = 1; }   // tap pasangan di S8
+message PairDetail {
+  PairSummary summary = 1;
+  repeated PairGameLine versus_lines = 2;
+  repeated DuoGameLine coop_lines = 3;
+  string streak_holder_player_id = 4;
+  int32 streak_count = 5;
+}
+message PairGameLine { string game_id = 1; int32 wins_mine = 2; int32 wins_theirs = 3; int32 draws = 4; }
+message DuoGameLine  { string game_id = 1; int32 best_score = 2; int32 total_matches = 3; }
+
+// Edit profil (GDD §3: display_name editable; equip avatar/frame dari inventory).
+// Field kosong = tidak diubah. Jawaban: ProfileData terbaru, atau Error
+// ("item_not_owned" untuk equip yang tidak dimiliki).
+message SetProfile { string display_name = 1; string avatar_id = 2; string frame_id = 3; }
+
+// --- Shop & wallet (S9) ---
+message GetShop {}   // jawaban: ShopData
+message ShopItem {
+  string item_key = 1;             // = cosmetic_item.item_key = key asset-list
+  string type = 2;                 // frame|emote_pack|board_skin|victory_anim
+  int32 price_tickets = 3;
+  bool premium_exclusive = 4;
+  bool owned = 5;
+}
+message ShopData {
+  repeated ShopItem items = 1;     // 19 item + default
+  int32 ticket_balance = 2;
+  int32 ads_remaining_today = 3;   // 5 - daily_ad_count
+  bool premium = 4;
+}
+// MVP: klaim dipercaya dari client setelah rewarded ad selesai (cap 5/hari
+// membatasi abuse). AdMob SSV = hardening post-launch, dicatat sebagai risiko
+// yang diterima. Jawaban: WalletUpdate atau Error("ad_cap_reached").
+message ClaimAdTicket {}
+// Jawaban: WalletUpdate (unlocked_item_key terisi) atau
+// Error("insufficient_tickets" | "already_owned" | "premium_required").
+message PurchaseItem { string item_key = 1; }
+message WalletUpdate {
+  int32 ticket_balance = 1;
+  int32 ads_remaining_today = 2;
+  string unlocked_item_key = 3;    // kosong kalau hanya perubahan saldo
+}
+// Client mengirim purchase token Play Billing setelah pembelian premium_unlock.
+// MVP: server menyimpan token + set premium=TRUE; verifikasi penuh via Play
+// Developer API menyusul saat service account Play Console siap (§8).
+// Jawaban: ProfileData (premium=true) atau Error("purchase_invalid").
+message PremiumPurchased { string play_purchase_token = 1; }
+
+// --- Push token (prasyarat FCM your_turn / invitee_joined) ---
+// Dikirim sekali per sesi setelah ServerHello (dan setiap kali token FCM
+// di-refresh oleh Firebase SDK). Tanpa ini push tidak mungkin terkirim.
+message RegisterPushToken { string fcm_token = 1; }
