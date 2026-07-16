@@ -12,7 +12,7 @@ using Object = UnityEngine.Object;
 namespace TwoUp.EditorTools
 {
     /// <summary>
-    /// Shared editor-authoring helpers for all per-scene builders (Boot/Lobby/ConnectFour and
+    /// Shared editor-authoring helpers for all per-scene builders (Boot/Home/ConnectFour and
     /// future screens). Pure toolkit — no scene-specific content lives here.
     /// </summary>
     public static class UiKit

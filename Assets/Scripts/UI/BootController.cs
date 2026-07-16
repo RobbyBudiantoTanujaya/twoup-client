@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace TwoUp.UI
 {
-    /// <summary>Boot flow: connect → ClientHello → ServerHello → Lobby. Shows retry on failure.</summary>
+    /// <summary>Boot flow: connect → ClientHello → ServerHello → Home. Shows retry on failure.</summary>
     public class BootController : MonoBehaviour
     {
         [SerializeField] private TMP_Text statusText;

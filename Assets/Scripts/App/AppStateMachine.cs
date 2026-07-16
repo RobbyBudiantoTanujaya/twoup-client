@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 namespace TwoUp
 {
     /// <summary>
-    /// Thin scene-flow driver: Boot → Lobby → InGame → Result/Rematch → Lobby.
+    /// Thin scene-flow driver: Boot → Home → InGame → Result/Rematch → Home.
     /// Nothing else loads scenes. Result is an in-scene sub-state of the game scene
     /// (game-over panel), so it doesn't trigger a scene load.
     /// </summary>
@@ -35,7 +35,6 @@ namespace TwoUp
         public GameCatalog Catalog => catalog;
 
         private const string BootScene = "Boot";
-        private const string LobbyScene = "Lobby";
         private const string GameScene = "ConnectFour";
 
         private void Awake()
@@ -68,13 +67,6 @@ namespace TwoUp
         {
             Current = State.Boot;
             SceneManager.LoadScene(BootScene);
-        }
-
-        /// <summary>Kept for BootController until "Retire Lobby" retires the Lobby scene/controller/builder.</summary>
-        public void ToLobby()
-        {
-            Current = State.Home;
-            SceneManager.LoadScene(LobbyScene);
         }
 
         public void ToHome()

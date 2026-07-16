@@ -23,7 +23,6 @@ namespace TwoUp.EditorTools
             ImportTmpEssentials();
             CreateServerConfig();
             BootSceneBuilder.BuildBootScene();
-            LobbySceneBuilder.BuildLobbyScene();
             ConnectFourSceneBuilder.BuildConnectFourScene();
             HomeSceneBuilder.Build();
             ConfigurePlayerSettings();
@@ -127,7 +126,6 @@ namespace TwoUp.EditorTools
                 scenes = new[]
                 {
                     "Assets/Scenes/Boot.unity",
-                    "Assets/Scenes/Lobby.unity",
                     "Assets/Scenes/ConnectFour.unity",
                 },
                 target = BuildTarget.Android,

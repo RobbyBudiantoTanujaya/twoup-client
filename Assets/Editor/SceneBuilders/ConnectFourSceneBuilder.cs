@@ -99,7 +99,7 @@ namespace TwoUp.EditorTools
             var rematch = UiKit.CreateButton(popup.transform, "RematchButton", "Rematch", new Vector2(560, 120), UiKit.ButtonBg);
             UiKit.Place(rematch.gameObject, Center, Center, new Vector2(0, -30), new Vector2(560, 120));
 
-            var back = UiKit.CreateButton(popup.transform, "BackButton", "Back to Lobby", new Vector2(560, 120), UiKit.ButtonMuted);
+            var back = UiKit.CreateButton(popup.transform, "BackButton", "Back to Home", new Vector2(560, 120), UiKit.ButtonMuted);
             UiKit.Place(back.gameObject, Center, Center, new Vector2(0, -180), new Vector2(560, 120));
 
             gameOver.SetActive(false);
