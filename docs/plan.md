@@ -522,14 +522,14 @@ LOGIKA/batch (gate). Depends on: "CHECKPOINT GATE VISUAL". Jalankan build Androi
 - EditMode suite penuh tetap hijau.
 
 <!-- ccq:progress:start -->
-## CCQ Progress — 5/32 selesai
+## CCQ Progress — 6/32 selesai
 
 - [x] `t_0716_0035_3d71df3c` Struktur asmdef + test scaffolding EditMode
 - [x] `t_0716_0035_8ee99a99` Extend proto kontrak per TDD 3.1 + regen C#
 - [x] `t_0716_0035_a2737e00` RateGate + extend NetworkClient (event baru, SendRateLimited, ping interval)
 - [x] `t_0716_0035_7da194ac` GameCatalog ScriptableObject + asset seed
 - [x] `t_0716_0035_2d08f139` Extend MatchContext + AppStateMachine (state & routing baru)
-- [ ] `t_0716_0035_7edc4605` Helper murni A - RoomCodeSanitizer, DeepLinkParser, InstallReferrerParser (+reader wrapper)
+- [x] `t_0716_0035_7edc4605` Helper murni A - RoomCodeSanitizer, DeepLinkParser, InstallReferrerParser (+reader wrapper)
 - [ ] `t_0716_0035_5cd660fc` Helper murni B - formatter & sorter (voting, async list, reflex, ledger)
 - [ ] `t_0716_0035_c3a1cc80` SnapshotInterpolator untuk game real-time
 - [ ] `t_0716_0035_b215c6bd` Battleship placement - validator + generator deterministik
