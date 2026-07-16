@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using TwoUp.Net;
 using UnityEditor;
 using UnityEditor.Build;
@@ -128,11 +129,7 @@ namespace TwoUp.EditorTools
             Directory.CreateDirectory("Builds");
             var options = new BuildPlayerOptions
             {
-                scenes = new[]
-                {
-                    "Assets/Scenes/Boot.unity",
-                    "Assets/Scenes/ConnectFour.unity",
-                },
+                scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray(),
                 target = BuildTarget.Android,
                 locationPathName = "Builds/twoup-client.apk",
                 options = BuildOptions.None,
