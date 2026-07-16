@@ -22,6 +22,11 @@ namespace TwoUp
         /// <summary>Set from PairFound, before the game_id for the current match is known.</summary>
         public static string PairId;
 
+        /// <summary>Pair badge fields from PairFound, consumed by Voting's Text_PairBadge.</summary>
+        public static string PairMilestoneTier;
+        public static int PairDuoLevel;
+        public static int PairTotalMatches;
+
         /// <summary>Set from a deep link / install referrer; consumed once after ServerHello. Survives Clear() pre-match.</summary>
         public static string PendingRoomCode;
 
@@ -54,6 +59,9 @@ namespace TwoUp
             MyPlayerId = null;
             PendingGameStart = null;
             PairId = null;
+            PairMilestoneTier = null;
+            PairDuoLevel = 0;
+            PairTotalMatches = 0;
             VsBotMode = false;
             LastGameOver = null;
             PendingResumeState = null;
