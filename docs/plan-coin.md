@@ -133,3 +133,18 @@ Gate audit, TANPA fitur baru. Depends on: keempat task retrofit scene (Home/Voti
 - EditMode batchmode FULL pass termasuk `EconomyGateTests.AllRetrofitScenes_NoMissingScripts`.
 - Semua grep poin 3 terpenuhi.
 - Rebuild scene idempotent (menjalankan build dua kali → `git status` bersih setelah run kedua).
+
+---
+
+<!-- ccq:progress:start -->
+## CCQ Progress — 0/8 selesai
+
+- [ ] `t_0717_1950_b0347701` Extend proto client ekonomi coin (TDD §3.1.7-3.1.8) + regen C#
+- [ ] `t_0717_1950_18e81c41` EconomyState static class + NetworkClient economy events
+- [ ] `t_0717_1950_a143f9ce` GetCoinsPanelController + GetCoinsPanelBuilder shared overlay helper
+- [ ] `t_0717_1950_010706b9` Retrofit Home scene: coin balance + Daily Reward popup + Panel_GetCoins
+- [ ] `t_0717_1950_36cb426f` Retrofit Voting scene: per-card coin price + affordability disable + Panel_GetCoins
+- [ ] `t_0717_1950_7c7e4451` Retrofit Result scene: coin price on Btn_Rematch + affordability disable + Panel_GetCoins
+- [ ] `t_0717_1950_4ea3e0d6` Retrofit Shop scene: coin balance + price_coins + Watch Ad label
+- [ ] `t_0717_1950_bb08f418` GATE: coin economy client — full rebuild + audit
+<!-- ccq:progress:end -->
