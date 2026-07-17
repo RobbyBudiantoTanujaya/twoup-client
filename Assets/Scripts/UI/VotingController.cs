@@ -30,6 +30,7 @@ namespace TwoUp.UI
         [SerializeField] private Button findNewButton;
         [SerializeField] private Button homeButton;
         [SerializeField] private TMP_Text toastText;
+        [SerializeField] private GetCoinsPanelController getCoinsPanel;
 
         private static readonly Color TierSelectedColor = new Color(0.22f, 0.42f, 0.85f);
         private static readonly Color TierMutedColor = new Color(0.35f, 0.38f, 0.48f);
@@ -47,6 +48,7 @@ namespace TwoUp.UI
             {
                 var captured = card;
                 captured.Button.onClick.AddListener(() => OnCardClicked(captured));
+                captured.GetCoinsButton.onClick.AddListener(() => getCoinsPanel.Show());
             }
 
             tierEasyButton.onClick.AddListener(() => SetTier("easy"));
@@ -98,6 +100,35 @@ namespace TwoUp.UI
             net.VotingCancelledReceived -= OnVotingCancelled;
             net.MatchFoundReceived -= OnMatchFound;
             net.GameStartReceived -= OnGameStart;
+        }
+
+        private void OnEnable()
+        {
+            EconomyState.Changed += RefreshCards;
+            RefreshCards();
+        }
+
+        private void OnDisable()
+        {
+            EconomyState.Changed -= RefreshCards;
+        }
+
+        /// <summary>Single source of truth for whether a card's Button should be interactable (GDD: vs-Bot is always free).</summary>
+        public static bool CardEnabled(string gameId, bool botPickerMode) => botPickerMode || EconomyState.CanAfford(gameId);
+
+        private void RefreshCards()
+        {
+            bool botPickerMode = MatchContext.VsBotMode;
+            foreach (var card in gameCards)
+            {
+                int cost = EconomyState.CostOf(card.GameId);
+                card.CostText.text = $"{cost}c";
+                card.CostText.gameObject.SetActive(!botPickerMode && cost > 0);
+
+                bool enabled = CardEnabled(card.GameId, botPickerMode);
+                card.Button.interactable = enabled;
+                card.GetCoinsButton.gameObject.SetActive(!enabled);
+            }
         }
 
         private void Update()
