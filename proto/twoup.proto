@@ -52,6 +52,10 @@ message Envelope { oneof payload {
   SetProfile        set_profile        = 99;
   RegisterPushToken register_push_token = 100;
   PremiumPurchased  premium_purchased  = 101;
+  // Ekonomi coin — TDD §3.1.8 (GDD v1.2 §4)
+  ClaimDailyReward  claim_daily_reward = 102;
+  DailyRewardClaimed daily_reward_claimed = 103;
+  EconomyConfig     economy_config     = 104;
 }}
 message ClientHello { string device_id = 1; string display_name = 2; }
 message ServerHello { string player_id = 1; }
@@ -314,15 +318,17 @@ message GetShop {}   // jawaban: ShopData
 message ShopItem {
   string item_key = 1;             // = cosmetic_item.item_key = key asset-list
   string type = 2;                 // frame|emote_pack|board_skin|victory_anim
-  int32 price_tickets = 3;
+  int32 price_tickets = 3;         // DEPRECATED v1.2 — tidak diisi; pakai price_coins
   bool premium_exclusive = 4;
   bool owned = 5;
+  int32 price_coins = 6;           // NEW v1.2 — harga coin (GDD v1.2 §4.5)
 }
 message ShopData {
   repeated ShopItem items = 1;     // 19 item + default
-  int32 ticket_balance = 2;
+  int32 ticket_balance = 2;        // DEPRECATED v1.2 — tidak diisi; pakai coin_balance
   int32 ads_remaining_today = 3;   // 5 - daily_ad_count
   bool premium = 4;
+  int32 coin_balance = 5;          // NEW v1.2
 }
 // MVP: klaim dipercaya dari client setelah rewarded ad selesai (cap 5/hari
 // membatasi abuse). AdMob SSV = hardening post-launch, dicatat sebagai risiko
@@ -332,9 +338,13 @@ message ClaimAdTicket {}
 // Error("insufficient_tickets" | "already_owned" | "premium_required").
 message PurchaseItem { string item_key = 1; }
 message WalletUpdate {
-  int32 ticket_balance = 1;
+  int32 ticket_balance = 1;          // DEPRECATED v1.2 — tidak diisi; pakai coin_balance
   int32 ads_remaining_today = 2;
-  string unlocked_item_key = 3;    // kosong kalau hanya perubahan saldo
+  string unlocked_item_key = 3;      // kosong kalau hanya perubahan saldo
+  int32 coin_balance = 4;            // NEW v1.2
+  int32 streak_count = 5;            // NEW v1.2 — streak login berjalan (0 = belum pernah claim)
+  bool daily_reward_available = 6;   // NEW v1.2 — true kalau last_claim_date != hari ini (waktu server)
+  int32 next_daily_reward_coins = 7; // NEW v1.2 — nominal reward kalau claim sekarang (untuk popup S2)
 }
 // Client mengirim purchase token Play Billing setelah pembelian premium_unlock.
 // MVP: server menyimpan token + set premium=TRUE; verifikasi penuh via Play
@@ -346,3 +356,28 @@ message PremiumPurchased { string play_purchase_token = 1; }
 // Dikirim sekali per sesi setelah ServerHello (dan setiap kali token FCM
 // di-refresh oleh Firebase SDK). Tanpa ini push tidak mungkin terkirim.
 message RegisterPushToken { string fcm_token = 1; }
+
+// ==========================================================================
+// TDD §3.1.8 — Ekonomi coin: daily reward, streak, config (GDD v1.2 §4)
+// ==========================================================================
+
+// Client -> server, tap tombol claim di popup Daily Reward S2.
+// Jawaban: DailyRewardClaimed, atau Error("daily_already_claimed").
+message ClaimDailyReward {}
+message DailyRewardClaimed {
+  int32 reward_coins = 1;   // nominal yang baru diberikan (untuk animasi "+7")
+  int32 streak_count = 2;   // streak SETELAH claim ini (1..n)
+  int32 coin_balance = 3;   // saldo baru
+}
+
+// Server -> client, dikirim sekali setelah ServerHello (sebelum WalletUpdate
+// snapshot). Sumber kebenaran SEMUA angka ekonomi — client TIDAK meng-hardcode
+// harga game / nominal reward / cap; semua render dari sini (GDD v1.2 §10:
+// tunable tanpa release client).
+message EconomyConfig {
+  map<string, int32> game_coin_cost = 1; // game_id -> harga
+  int32 ad_reward_coins = 2;             // default 3
+  int32 ad_daily_cap = 3;                // default 5
+  repeated int32 daily_streak_rewards = 4; // default [5,6,7,8,10,12,15]; index = hari streak-1
+  int32 starting_balance = 5;            // default 20 (pemain baru)
+}
