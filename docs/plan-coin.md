@@ -137,11 +137,11 @@ Gate audit, TANPA fitur baru. Depends on: keempat task retrofit scene (Home/Voti
 ---
 
 <!-- ccq:progress:start -->
-## CCQ Progress — 2/8 selesai
+## CCQ Progress — 3/8 selesai
 
 - [x] `t_0717_1950_b0347701` Extend proto client ekonomi coin (TDD §3.1.7-3.1.8) + regen C#
 - [x] `t_0717_1950_18e81c41` EconomyState static class + NetworkClient economy events
-- [ ] `t_0717_1950_a143f9ce` GetCoinsPanelController + GetCoinsPanelBuilder shared overlay helper
+- [x] `t_0717_1950_a143f9ce` GetCoinsPanelController + GetCoinsPanelBuilder shared overlay helper
 - [ ] `t_0717_1950_010706b9` Retrofit Home scene: coin balance + Daily Reward popup + Panel_GetCoins
 - [ ] `t_0717_1950_36cb426f` Retrofit Voting scene: per-card coin price + affordability disable + Panel_GetCoins
 - [ ] `t_0717_1950_7c7e4451` Retrofit Result scene: coin price on Btn_Rematch + affordability disable + Panel_GetCoins
