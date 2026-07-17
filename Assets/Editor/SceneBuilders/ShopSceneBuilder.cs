@@ -14,7 +14,7 @@ namespace TwoUp.EditorTools
         [MenuItem("2UP/Build Scenes/Shop")]
         public static void Build()
         {
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("Shop");
             var screen = UiKit.CreateCanvasWithScreen("Screen_Shop");
 
             var back = UiKit.CreateButton(screen.transform, "Btn_Back", "Back", new Vector2(220, 90), UiKit.ButtonMuted);
@@ -36,7 +36,7 @@ namespace TwoUp.EditorTools
 
             var getCoinsPanel = GetCoinsPanelBuilder.Add(screen.transform);
 
-            var controller = screen.AddComponent<ShopController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<ShopController>(screen);
             UiKit.SetRef(controller, "backButton", back);
             UiKit.SetRef(controller, "coinBalanceText", coinBalanceText);
             UiKit.SetRef(controller, "watchAdButton", watchAdButton);
@@ -65,7 +65,7 @@ namespace TwoUp.EditorTools
             // Standard ScrollView: ScrollRect(root) -> Viewport(RectMask2D) -> Content(VerticalLayoutGroup+ContentSizeFitter).
             var scrollViewGo = UiKit.CreateUIObject("List_Items", screenTransform);
             UiKit.Place(scrollViewGo, Center, Center, new Vector2(0, -40), new Vector2(1000, 1150));
-            var scrollRect = scrollViewGo.AddComponent<ScrollRect>();
+            var scrollRect = IdempotentBuildUtil.GetOrAddComponent<ScrollRect>(scrollViewGo);
             scrollRect.horizontal = false;
             scrollRect.vertical = true;
             scrollRect.movementType = ScrollRect.MovementType.Clamped;
@@ -74,7 +74,7 @@ namespace TwoUp.EditorTools
             UiKit.StretchFull(viewportGo);
             var viewportImg = viewportGo.GetComponent<Image>();
             viewportImg.raycastTarget = false;
-            viewportGo.AddComponent<RectMask2D>();
+            IdempotentBuildUtil.GetOrAddComponent<RectMask2D>(viewportGo);
 
             var contentGo = UiKit.CreateUIObject("Content", viewportGo.transform);
             var contentRt = (RectTransform)contentGo.transform;
@@ -83,13 +83,13 @@ namespace TwoUp.EditorTools
             contentRt.pivot = new Vector2(0.5f, 1f);
             contentRt.anchoredPosition = Vector2.zero;
             contentRt.sizeDelta = new Vector2(0f, 0f);
-            var vlg = contentGo.AddComponent<VerticalLayoutGroup>();
+            var vlg = IdempotentBuildUtil.GetOrAddComponent<VerticalLayoutGroup>(contentGo);
             vlg.childControlWidth = true;
             vlg.childControlHeight = true;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
             vlg.spacing = 16f;
-            var csf = contentGo.AddComponent<ContentSizeFitter>();
+            var csf = IdempotentBuildUtil.GetOrAddComponent<ContentSizeFitter>(contentGo);
             csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             scrollRect.viewport = (RectTransform)viewportGo.transform;
@@ -107,7 +107,7 @@ namespace TwoUp.EditorTools
         {
             var row = UiKit.CreatePanel(parent, "ShopItemRowTemplate", UiKit.ListRowBg);
             ((RectTransform)row.transform).sizeDelta = new Vector2(1000, 140);
-            var layoutElement = row.AddComponent<LayoutElement>();
+            var layoutElement = IdempotentBuildUtil.GetOrAddComponent<LayoutElement>(row);
             layoutElement.preferredHeight = 140;
 
             var nameLabel = UiKit.CreateText(row.transform, "Text_Name", "", 36, Color.white);
@@ -121,7 +121,7 @@ namespace TwoUp.EditorTools
             var buyButton = UiKit.CreateButton(row.transform, "Btn_Buy", "Buy", new Vector2(220, 90), UiKit.ButtonBg);
             UiKit.Place(buyButton.gameObject, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-24, 0), new Vector2(220, 90));
 
-            var view = row.AddComponent<ShopItemRowView>();
+            var view = IdempotentBuildUtil.GetOrAddComponent<ShopItemRowView>(row);
             UiKit.SetRef(view, "nameLabel", nameLabel);
             UiKit.SetRef(view, "priceLabel", priceLabel);
             UiKit.SetRef(view, "buyButton", buyButton);

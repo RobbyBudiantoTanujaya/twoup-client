@@ -13,7 +13,7 @@ namespace TwoUp.EditorTools
         [MenuItem("2UP/Build Scenes/Result")]
         public static void Build()
         {
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("Result");
             var screen = UiKit.CreateCanvasWithScreen("Screen_Result");
 
             var headline = UiKit.CreateText(screen.transform, "Text_Headline", "", 72, Color.white);
@@ -50,7 +50,7 @@ namespace TwoUp.EditorTools
 
             var getCoinsPanel = GetCoinsPanelBuilder.Add(screen.transform);
 
-            var controller = screen.AddComponent<ResultController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<ResultController>(screen);
             UiKit.SetRef(controller, "headlineText", headline);
             UiKit.SetRef(controller, "ledgerLineText", ledgerLine);
             UiKit.SetRef(controller, "streakLineText", streakLine);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TMPro;
 using TwoUp.UI;
@@ -13,7 +14,10 @@ namespace TwoUp.EditorTools
 {
     /// <summary>
     /// Shared editor-authoring helpers for all per-scene builders (Boot/Home/ConnectFour and
-    /// future screens). Pure toolkit — no scene-specific content lives here.
+    /// future screens). Pure toolkit — no scene-specific content lives here. Every primitive here
+    /// is find-or-create (via IdempotentBuildUtil): calling Build() again on a scene that already
+    /// has these objects updates their properties in place instead of destroying and recreating
+    /// them, which keeps local fileIDs/GUIDs stable across repeated builds.
     /// </summary>
     public static class UiKit
     {
@@ -31,18 +35,41 @@ namespace TwoUp.EditorTools
 
         // ---------------------------------------------------------------- scene lifecycle
 
+        /// <summary>Always creates a brand-new empty scene (not idempotent across runs — used by
+        /// builders that haven't been retrofitted for in-place rebuilds yet).</summary>
         public static UnityEngine.SceneManagement.Scene NewScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            var camGo = new GameObject("Main Camera");
+            EnsureMainCamera();
+            return scene;
+        }
+
+        /// <summary>
+        /// Idempotent scene entry point: opens "Assets/Scenes/{sceneName}.unity" in place if it
+        /// already exists (preserving every GameObject/component's local fileID), or creates a
+        /// fresh empty scene if this is the first build. Callers still finish with SaveScene(scene,
+        /// sceneName) using the same name.
+        /// </summary>
+        public static UnityEngine.SceneManagement.Scene OpenOrCreateScene(string sceneName)
+        {
+            string path = $"Assets/Scenes/{sceneName}.unity";
+            var scene = File.Exists(path)
+                ? EditorSceneManager.OpenScene(path, OpenSceneMode.Single)
+                : EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            EnsureMainCamera();
+            return scene;
+        }
+
+        private static void EnsureMainCamera()
+        {
+            var camGo = IdempotentBuildUtil.FindOrCreate(null, "Main Camera", typeof(Camera), typeof(AudioListener));
             camGo.tag = "MainCamera";
-            var cam = camGo.AddComponent<Camera>();
+            var cam = IdempotentBuildUtil.GetOrAddComponent<Camera>(camGo);
             cam.orthographic = true;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = CameraBg;
             cam.cullingMask = 0; // UI is Screen Space Overlay; nothing in world space
-            camGo.AddComponent<AudioListener>();
-            return scene;
+            IdempotentBuildUtil.GetOrAddComponent<AudioListener>(camGo);
         }
 
         public static void SaveScene(UnityEngine.SceneManagement.Scene scene, string name)
@@ -79,17 +106,20 @@ namespace TwoUp.EditorTools
         /// <summary>Canvas (overlay, 1080x1920 reference) + EventSystem + full-screen Screen_* root panel.</summary>
         public static GameObject CreateCanvasWithScreen(string screenName)
         {
-            var canvasGo = new GameObject("UICanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var canvasGo = IdempotentBuildUtil.FindOrCreate(null, "UICanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasGo.layer = LayerMask.NameToLayer("UI");
-            var canvas = canvasGo.GetComponent<Canvas>();
+            var canvas = IdempotentBuildUtil.GetOrAddComponent<Canvas>(canvasGo);
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            var scaler = canvasGo.GetComponent<CanvasScaler>();
+            var scaler = IdempotentBuildUtil.GetOrAddComponent<CanvasScaler>(canvasGo);
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1080, 1920);
             // Match width so the fixed-width board/menus always fit on taller-than-16:9 phones.
             scaler.matchWidthOrHeight = 0f;
+            IdempotentBuildUtil.GetOrAddComponent<GraphicRaycaster>(canvasGo);
 
-            new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+            var eventSystemGo = IdempotentBuildUtil.FindOrCreate(null, "EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+            IdempotentBuildUtil.GetOrAddComponent<EventSystem>(eventSystemGo);
+            IdempotentBuildUtil.GetOrAddComponent<StandaloneInputModule>(eventSystemGo);
 
             var screen = CreatePanel(canvasGo.transform, screenName, ScreenBg);
             StretchFull(screen);
@@ -100,9 +130,8 @@ namespace TwoUp.EditorTools
 
         public static GameObject CreateUIObject(string name, Transform parent)
         {
-            var go = new GameObject(name, typeof(RectTransform));
+            var go = IdempotentBuildUtil.FindOrCreate(parent, name, typeof(RectTransform));
             go.layer = LayerMask.NameToLayer("UI");
-            go.transform.SetParent(parent, false);
             return go;
         }
 
@@ -110,7 +139,7 @@ namespace TwoUp.EditorTools
         public static GameObject CreatePanel(Transform parent, string name, Color color)
         {
             var go = CreateUIObject(name, parent);
-            var img = go.AddComponent<Image>();
+            var img = IdempotentBuildUtil.GetOrAddComponent<Image>(go);
             img.color = color;
             return go;
         }
@@ -118,7 +147,7 @@ namespace TwoUp.EditorTools
         public static TMP_Text CreateText(Transform parent, string name, string text, float fontSize, Color color)
         {
             var go = CreateUIObject(name, parent);
-            var tmp = go.AddComponent<TextMeshProUGUI>();
+            var tmp = IdempotentBuildUtil.GetOrAddComponent<TextMeshProUGUI>(go);
             tmp.text = text;
             tmp.fontSize = fontSize;
             tmp.color = color;
@@ -130,11 +159,11 @@ namespace TwoUp.EditorTools
         public static Button CreateButton(Transform parent, string name, string label, Vector2 size, Color bg)
         {
             var go = CreateUIObject(name, parent);
-            var img = go.AddComponent<Image>();
+            var img = IdempotentBuildUtil.GetOrAddComponent<Image>(go);
             img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             img.type = Image.Type.Sliced;
             img.color = bg;
-            var btn = go.AddComponent<Button>();
+            var btn = IdempotentBuildUtil.GetOrAddComponent<Button>(go);
             btn.targetGraphic = img;
             ((RectTransform)go.transform).sizeDelta = size;
             var text = CreateText(go.transform, "Label", label, 44, Color.white);
@@ -147,17 +176,17 @@ namespace TwoUp.EditorTools
         {
             var go = CreateUIObject(name, parent);
             ((RectTransform)go.transform).sizeDelta = new Vector2(700, 90);
-            var toggle = go.AddComponent<Toggle>();
+            var toggle = IdempotentBuildUtil.GetOrAddComponent<Toggle>(go);
 
             var bg = CreateUIObject("Background", go.transform);
-            var bgImg = bg.AddComponent<Image>();
+            var bgImg = IdempotentBuildUtil.GetOrAddComponent<Image>(bg);
             bgImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             bgImg.type = Image.Type.Sliced;
             bgImg.color = Color.white;
             Place(bg, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(30, 0), new Vector2(60, 60));
 
             var checkmark = CreateUIObject("Checkmark", bg.transform);
-            var checkImg = checkmark.AddComponent<Image>();
+            var checkImg = IdempotentBuildUtil.GetOrAddComponent<Image>(checkmark);
             checkImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
             checkImg.color = ButtonBg;
             StretchFull(checkmark);
@@ -175,17 +204,26 @@ namespace TwoUp.EditorTools
 
         public static TMP_InputField CreateInputField(Transform parent, string name, string placeholder, int charLimit)
         {
-            var resources = new TMP_DefaultControls.Resources
+            var existing = parent.Find(name);
+            GameObject go;
+            if (existing != null)
             {
-                inputField = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/InputFieldBackground.psd"),
-            };
-            var go = TMP_DefaultControls.CreateInputField(resources);
-            go.name = name;
-            go.layer = LayerMask.NameToLayer("UI");
-            foreach (var t in go.GetComponentsInChildren<Transform>(true))
-                t.gameObject.layer = LayerMask.NameToLayer("UI");
-            go.transform.SetParent(parent, false);
-            var input = go.GetComponent<TMP_InputField>();
+                go = existing.gameObject;
+            }
+            else
+            {
+                var resources = new TMP_DefaultControls.Resources
+                {
+                    inputField = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/InputFieldBackground.psd"),
+                };
+                go = TMP_DefaultControls.CreateInputField(resources);
+                go.name = name;
+                go.layer = LayerMask.NameToLayer("UI");
+                foreach (var t in go.GetComponentsInChildren<Transform>(true))
+                    t.gameObject.layer = LayerMask.NameToLayer("UI");
+                go.transform.SetParent(parent, false);
+            }
+            var input = IdempotentBuildUtil.GetOrAddComponent<TMP_InputField>(go);
             input.characterLimit = charLimit;
             input.textComponent.fontSize = 44;
             var placeholderText = (TMP_Text)input.placeholder;
@@ -233,7 +271,7 @@ namespace TwoUp.EditorTools
 
             var wheelPanel = CreatePanel(root.transform, "EmoteWheelPanel", PanelBg);
             Place(wheelPanel, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-24, 140), new Vector2(420, 280));
-            var grid = wheelPanel.AddComponent<GridLayoutGroup>();
+            var grid = IdempotentBuildUtil.GetOrAddComponent<GridLayoutGroup>(wheelPanel);
             grid.cellSize = new Vector2(130, 130);
             grid.spacing = new Vector2(10, 10);
             grid.padding = new RectOffset(10, 10, 10, 10);
@@ -249,7 +287,7 @@ namespace TwoUp.EditorTools
             var incomingText = CreateText(root.transform, "IncomingEmoteText", "", 36, Color.white);
             Place(incomingText.gameObject, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 24), new Vector2(760, 70));
 
-            var controller = root.AddComponent<EmoteWheelController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<EmoteWheelController>(root);
             SetRef(controller, "toggleButton", toggle);
             SetRef(controller, "wheelPanel", wheelPanel);
             SetArray(controller, "emoteButtons", emoteButtons);
@@ -266,7 +304,7 @@ namespace TwoUp.EditorTools
             var label = CreateText(badge.transform, "Label", "", 28, Color.white);
             StretchFull(label.gameObject);
 
-            var controller = badge.AddComponent<ConnectionIndicator>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<ConnectionIndicator>(badge);
             SetRef(controller, "label", label);
             return controller;
         }

@@ -14,14 +14,14 @@ namespace TwoUp.EditorTools
 
         public static void BuildBootScene()
         {
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("Boot");
 
             // Persistent App object: exists only here; DontDestroyOnLoad at runtime.
-            var app = new GameObject("App");
-            var net = app.AddComponent<NetworkClient>();
-            var stateMachine = app.AddComponent<AppStateMachine>();
-            app.AddComponent<DeepLinkRouter>();
-            var pushTokenClient = app.AddComponent<PushTokenClient>();
+            var app = IdempotentBuildUtil.FindOrCreate(null, "App");
+            var net = IdempotentBuildUtil.GetOrAddComponent<NetworkClient>(app);
+            var stateMachine = IdempotentBuildUtil.GetOrAddComponent<AppStateMachine>(app);
+            IdempotentBuildUtil.GetOrAddComponent<DeepLinkRouter>(app);
+            var pushTokenClient = IdempotentBuildUtil.GetOrAddComponent<PushTokenClient>(app);
             var config = AssetDatabase.LoadAssetAtPath<ServerConfig>(ServerConfigPath);
             UiKit.SetRef(net, "serverConfig", config);
             var catalog = AssetDatabase.LoadAssetAtPath<GameCatalog>(GameCatalogPath);
@@ -40,7 +40,7 @@ namespace TwoUp.EditorTools
             UiKit.Place(retry.gameObject, Center, Center, new Vector2(0, -140), new Vector2(500, 120));
             retry.gameObject.SetActive(false);
 
-            var controller = screen.AddComponent<BootController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<BootController>(screen);
             UiKit.SetRef(controller, "statusText", status);
             UiKit.SetRef(controller, "retryButton", retry);
             UiKit.SetRef(controller, "pushTokenClient", pushTokenClient);

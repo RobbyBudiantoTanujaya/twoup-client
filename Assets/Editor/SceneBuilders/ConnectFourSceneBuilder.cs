@@ -20,7 +20,7 @@ namespace TwoUp.EditorTools
                 columns * cell + (columns - 1) * spacing + 2 * pad,
                 rows * cell + (rows - 1) * spacing + 2 * pad);
 
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("ConnectFour");
             var screen = UiKit.CreateCanvasWithScreen("Screen_Game");
             var knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
 
@@ -32,7 +32,7 @@ namespace TwoUp.EditorTools
 
             // Turn timer ring, next to TurnText (top-right corner so it never overlaps the centered label).
             var ringGo = UiKit.CreateUIObject("Ring_TurnTimer", screen.transform);
-            var ring = ringGo.AddComponent<Image>();
+            var ring = IdempotentBuildUtil.GetOrAddComponent<Image>(ringGo);
             ring.sprite = knob;
             ring.type = Image.Type.Filled;
             ring.fillMethod = Image.FillMethod.Radial360;
@@ -44,7 +44,7 @@ namespace TwoUp.EditorTools
             // Board: 7x6 grid of disc Images, display order top-left → bottom-right.
             var board = UiKit.CreatePanel(screen.transform, "Board", UiKit.BoardBg);
             UiKit.Place(board, Center, Center, new Vector2(0, 40), boardSize);
-            var grid = board.AddComponent<GridLayoutGroup>();
+            var grid = IdempotentBuildUtil.GetOrAddComponent<GridLayoutGroup>(board);
             grid.cellSize = new Vector2(cell, cell);
             grid.spacing = new Vector2(spacing, spacing);
             grid.padding = new RectOffset((int)pad, (int)pad, (int)pad, (int)pad);
@@ -60,7 +60,7 @@ namespace TwoUp.EditorTools
                 for (int c = 0; c < columns; c++)
                 {
                     var go = UiKit.CreateUIObject($"Cell_r{r}c{c}", board.transform);
-                    var img = go.AddComponent<Image>();
+                    var img = IdempotentBuildUtil.GetOrAddComponent<Image>(go);
                     img.sprite = knob;
                     img.color = UiKit.CellEmpty;
                     img.raycastTarget = false;
@@ -71,7 +71,7 @@ namespace TwoUp.EditorTools
             // Invisible full-height tap zones over each column (sibling of Board, same rect).
             var columnsRoot = UiKit.CreateUIObject("Columns", screen.transform);
             UiKit.Place(columnsRoot, Center, Center, new Vector2(0, 40), boardSize);
-            var hlg = columnsRoot.AddComponent<HorizontalLayoutGroup>();
+            var hlg = IdempotentBuildUtil.GetOrAddComponent<HorizontalLayoutGroup>(columnsRoot);
             hlg.padding = new RectOffset((int)pad, (int)pad, (int)pad, (int)pad);
             hlg.spacing = spacing;
             hlg.childControlWidth = true;
@@ -83,10 +83,10 @@ namespace TwoUp.EditorTools
             for (int c = 0; c < columns; c++)
             {
                 var go = UiKit.CreateUIObject($"ColumnButton_{c}", columnsRoot.transform);
-                var img = go.AddComponent<Image>();
+                var img = IdempotentBuildUtil.GetOrAddComponent<Image>(go);
                 img.color = new Color(1f, 1f, 1f, 0f); // invisible but raycastable tap zone
                 img.raycastTarget = true;
-                var btn = go.AddComponent<Button>();
+                var btn = IdempotentBuildUtil.GetOrAddComponent<Button>(go);
                 btn.transition = Selectable.Transition.None;
                 btn.targetGraphic = img;
                 columnButtons[c] = btn;
@@ -99,7 +99,7 @@ namespace TwoUp.EditorTools
             UiKit.Place(toast.gameObject, Center, Center, Vector2.zero, new Vector2(800, 100));
             toast.gameObject.SetActive(false);
 
-            var controller = screen.AddComponent<ConnectFourController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<ConnectFourController>(screen);
             UiKit.SetRef(controller, "turnText", turn);
             UiKit.SetRef(controller, "youAreText", youAre);
             UiKit.SetArray(controller, "cells", cellImages);

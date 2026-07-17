@@ -33,7 +33,7 @@ namespace TwoUp.EditorTools
                 return;
             }
 
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("Voting");
             var screen = UiKit.CreateCanvasWithScreen("Screen_Voting");
 
             var header = UiKit.CreateText(screen.transform, "Text_Header", "Pick your game!", 60, Color.white);
@@ -50,7 +50,7 @@ namespace TwoUp.EditorTools
 
             var grid = UiKit.CreateUIObject("Grid_GameCards", screen.transform);
             UiKit.Place(grid, Center, Center, new Vector2(0, 20), new Vector2(1000, 900));
-            var glg = grid.AddComponent<GridLayoutGroup>();
+            var glg = IdempotentBuildUtil.GetOrAddComponent<GridLayoutGroup>(grid);
             glg.cellSize = new Vector2(480, 280);
             glg.spacing = new Vector2(20, 20);
             glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
@@ -86,7 +86,7 @@ namespace TwoUp.EditorTools
 
             var tierRow = UiKit.CreateUIObject("Row_Tiers", botPickerPanel.transform);
             UiKit.Place(tierRow, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -30), new Vector2(880, 110));
-            var hlg = tierRow.AddComponent<HorizontalLayoutGroup>();
+            var hlg = IdempotentBuildUtil.GetOrAddComponent<HorizontalLayoutGroup>(tierRow);
             hlg.spacing = 20;
             hlg.childAlignment = TextAnchor.MiddleCenter;
             hlg.childControlWidth = true;
@@ -117,7 +117,7 @@ namespace TwoUp.EditorTools
 
             var getCoinsPanel = GetCoinsPanelBuilder.Add(screen.transform);
 
-            var controller = screen.AddComponent<VotingController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<VotingController>(screen);
             UiKit.SetArray(controller, "gameCards", cards);
             UiKit.SetRef(controller, "pairBadgeText", pairBadge);
             UiKit.SetRef(controller, "subheaderText", subheader);
@@ -142,9 +142,9 @@ namespace TwoUp.EditorTools
         private static GameCardView CreateCard(Transform parent, string gameId, string displayName, string tags, Color bg)
         {
             var go = UiKit.CreateUIObject($"Card_{gameId}", parent);
-            var img = go.AddComponent<Image>();
+            var img = IdempotentBuildUtil.GetOrAddComponent<Image>(go);
             img.color = bg;
-            var btn = go.AddComponent<Button>();
+            var btn = IdempotentBuildUtil.GetOrAddComponent<Button>(go);
             btn.targetGraphic = img;
 
             var nameLabel = UiKit.CreateText(go.transform, "NameLabel", displayName, 40, Color.white);
@@ -163,7 +163,7 @@ namespace TwoUp.EditorTools
             UiKit.Place(getCoinsBtn.gameObject, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-14, 8), new Vector2(80, 40));
             getCoinsBtn.gameObject.SetActive(false);
 
-            var card = go.AddComponent<GameCardView>();
+            var card = IdempotentBuildUtil.GetOrAddComponent<GameCardView>(go);
             card.GameId = gameId;
             UiKit.SetRef(card, "nameLabel", nameLabel);
             UiKit.SetRef(card, "tagsLabel", tagsLabel);
