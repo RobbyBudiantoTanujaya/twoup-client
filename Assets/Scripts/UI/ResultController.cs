@@ -20,10 +20,13 @@ namespace TwoUp.UI
         [SerializeField] private TMP_Text streakLineText;
         [SerializeField] private TMP_Text seriesLineText;
         [SerializeField] private Button rematchButton;
+        [SerializeField] private TMP_Text rematchLabelText;
         [SerializeField] private Button nextGameButton;
         [SerializeField] private Button leaveButton;
         [SerializeField] private TMP_Text opponentDecisionText;
         [SerializeField] private TMP_Text countdownText;
+        [SerializeField] private Button getCoinsButton;
+        [SerializeField] private GetCoinsPanelController getCoinsPanel;
 
         private const float InitialCountdownMs = 20000f;
 
@@ -44,6 +47,7 @@ namespace TwoUp.UI
             rematchButton.onClick.AddListener(() => SendRematchChoice(RematchChoice.RematchSameGame));
             nextGameButton.onClick.AddListener(() => SendRematchChoice(RematchChoice.NextGame));
             leaveButton.onClick.AddListener(OnLeaveClicked);
+            getCoinsButton.onClick.AddListener(() => getCoinsPanel.Show());
 
             opponentDecisionText.text = "";
             streakLineText.text = "";
@@ -73,6 +77,39 @@ namespace TwoUp.UI
             net.PairDetailReceived -= OnPairDetail;
             net.ErrorReceived -= OnError;
         }
+
+        private void OnEnable()
+        {
+            EconomyState.Changed += RefreshRematchButton;
+            RefreshRematchButton();
+        }
+
+        private void OnDisable()
+        {
+            EconomyState.Changed -= RefreshRematchButton;
+        }
+
+        private void RefreshRematchButton()
+        {
+            string gameId = MatchContext.GameId;
+            bool vsBot = MatchContext.LastMatchVsBot;
+            rematchLabelText.text = RematchLabel(gameId, vsBot);
+            bool enabled = RematchEnabled(gameId, vsBot);
+            rematchButton.interactable = enabled;
+            getCoinsButton.gameObject.SetActive(!enabled);
+        }
+
+        /// <summary>Pure, testable rematch button label rule: vs-bot rematches are always free.</summary>
+        public static string RematchLabel(string gameId, bool vsBot)
+        {
+            if (vsBot)
+                return "Rematch";
+            int cost = EconomyState.CostOf(gameId);
+            return cost > 0 ? $"Rematch ({cost}c)" : "Rematch";
+        }
+
+        /// <summary>Pure, testable rematch affordability rule: vs-bot rematches are always enabled.</summary>
+        public static bool RematchEnabled(string gameId, bool vsBot) => vsBot || EconomyState.CanAfford(gameId);
 
         private void Update()
         {
@@ -181,6 +218,7 @@ namespace TwoUp.UI
 
         private void OnPairFound(PairFound msg)
         {
+            MatchContext.LastMatchVsBot = false;
             MatchContext.PairId = msg.PairId;
             MatchContext.SeriesWinsMine = 0;
             MatchContext.SeriesWinsTheirs = 0;

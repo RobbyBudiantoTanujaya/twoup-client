@@ -31,6 +31,14 @@ namespace TwoUp
         public static string PendingRoomCode;
 
         public static bool VsBotMode;
+
+        /// <summary>
+        /// True when the just-played match was vs a bot. Set to true only at the StartBotMatch
+        /// send site (VotingController.OnStartBot) and to false only at the PairFound receive
+        /// site (ResultController.OnPairFound) — no other call site should assign this.
+        /// </summary>
+        public static bool LastMatchVsBot;
+
         public static GameOver LastGameOver;
         public static ByteString PendingResumeState;
         public static int SeriesWinsMine;

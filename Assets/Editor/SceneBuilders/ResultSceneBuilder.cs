@@ -1,3 +1,4 @@
+using TMPro;
 using TwoUp.UI;
 using UnityEditor;
 using UnityEngine;
@@ -35,6 +36,11 @@ namespace TwoUp.EditorTools
 
             var rematch = UiKit.CreateButton(screen.transform, "Btn_Rematch", "Rematch", new Vector2(560, 120), UiKit.ButtonBg);
             UiKit.Place(rematch.gameObject, Center, Center, new Vector2(0, 60), new Vector2(560, 120));
+            var rematchLabel = rematch.transform.Find("Label").GetComponent<TMP_Text>();
+
+            var getCoinsBtn = UiKit.CreateButton(screen.transform, "Btn_GetCoins", "+c", new Vector2(140, 80), UiKit.ButtonBg);
+            UiKit.Place(getCoinsBtn.gameObject, Center, Center, new Vector2(340, 60), new Vector2(140, 80));
+            getCoinsBtn.gameObject.SetActive(false);
 
             var nextGame = UiKit.CreateButton(screen.transform, "Btn_NextGame", "Next Game", new Vector2(560, 110), UiKit.ButtonBg);
             UiKit.Place(nextGame.gameObject, Center, Center, new Vector2(0, -75), new Vector2(560, 110));
@@ -42,16 +48,21 @@ namespace TwoUp.EditorTools
             var leave = UiKit.CreateButton(screen.transform, "Btn_Leave", "Leave", new Vector2(560, 100), UiKit.ButtonMuted);
             UiKit.Place(leave.gameObject, Center, Center, new Vector2(0, -200), new Vector2(560, 100));
 
+            var getCoinsPanel = GetCoinsPanelBuilder.Add(screen.transform);
+
             var controller = screen.AddComponent<ResultController>();
             UiKit.SetRef(controller, "headlineText", headline);
             UiKit.SetRef(controller, "ledgerLineText", ledgerLine);
             UiKit.SetRef(controller, "streakLineText", streakLine);
             UiKit.SetRef(controller, "seriesLineText", seriesLine);
             UiKit.SetRef(controller, "rematchButton", rematch);
+            UiKit.SetRef(controller, "rematchLabelText", rematchLabel);
             UiKit.SetRef(controller, "nextGameButton", nextGame);
             UiKit.SetRef(controller, "leaveButton", leave);
             UiKit.SetRef(controller, "opponentDecisionText", opponentDecision);
             UiKit.SetRef(controller, "countdownText", countdown);
+            UiKit.SetRef(controller, "getCoinsButton", getCoinsBtn);
+            UiKit.SetRef(controller, "getCoinsPanel", getCoinsPanel);
 
             UiKit.SaveScene(scene, "Result");
             UiKit.AddSceneToBuildSettings("Assets/Scenes/Result.unity");
