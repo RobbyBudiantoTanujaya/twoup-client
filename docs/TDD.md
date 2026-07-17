@@ -117,6 +117,10 @@ message Envelope { oneof payload {
   SetProfile        set_profile        = 99;
   RegisterPushToken register_push_token = 100;
   PremiumPurchased  premium_purchased  = 101;
+  // Ekonomi coin (GDD v1.2 §4) — §3.1.8
+  ClaimDailyReward   claim_daily_reward   = 102;
+  DailyRewardClaimed daily_reward_claimed = 103;
+  EconomyConfig      economy_config       = 104;
 }}
 
 // Vs Bot (GDD S2/S5, mode eksplisit): melewati Pairing/voting sepenuhnya —
@@ -334,32 +338,48 @@ message DuoGameLine  { string game_id = 1; int32 best_score = 2; int32 total_mat
 message SetProfile { string display_name = 1; string avatar_id = 2; string frame_id = 3; }
 
 // --- Shop & wallet (S9) ---
+// CATATAN v1.2 (ekonomi coin, GDD v1.2 §4): currency = COIN. Field/message
+// bernama "ticket" DIPERTAHANKAN di wire (additive-only, §3.1) tapi
+// DEPRECATED — server tidak mengisinya lagi; client hanya membaca field coin.
 message GetShop {}   // jawaban: ShopData
 message ShopItem {
   string item_key = 1;             // = cosmetic_item.item_key = key asset-list
   string type = 2;                 // frame|emote_pack|board_skin|victory_anim
-  int32 price_tickets = 3;
+  int32 price_tickets = 3;         // DEPRECATED v1.2 — tidak diisi; pakai price_coins
   bool premium_exclusive = 4;
   bool owned = 5;
+  int32 price_coins = 6;           // NEW v1.2 — harga coin (GDD v1.2 §4.5)
 }
 message ShopData {
   repeated ShopItem items = 1;     // 19 item + default
-  int32 ticket_balance = 2;
-  int32 ads_remaining_today = 3;   // 5 - daily_ad_count
+  int32 ticket_balance = 2;        // DEPRECATED v1.2 — tidak diisi; pakai coin_balance
+  int32 ads_remaining_today = 3;   // ad_daily_cap - daily_ad_count
   bool premium = 4;
+  int32 coin_balance = 5;          // NEW v1.2
 }
-// MVP: klaim dipercaya dari client setelah rewarded ad selesai (cap 5/hari
+// MVP: klaim dipercaya dari client setelah rewarded ad selesai (cap harian
 // membatasi abuse). AdMob SSV = hardening post-launch, dicatat sebagai risiko
 // yang diterima. Jawaban: WalletUpdate atau Error("ad_cap_reached").
+// v1.2: nama message tetap (rename = breaking di JSON wire); semantik = klaim
+// coin dari 1 rewarded ad, grant EconomyConfig.ad_reward_coins (default 3).
 message ClaimAdTicket {}
 // Jawaban: WalletUpdate (unlocked_item_key terisi) atau
-// Error("insufficient_tickets" | "already_owned" | "premium_required").
+// Error("insufficient_coins" | "already_owned" | "premium_required").
+// (Error string "insufficient_tickets" DEPRECATED v1.2, tidak dipakai lagi.)
 message PurchaseItem { string item_key = 1; }
 message WalletUpdate {
-  int32 ticket_balance = 1;
+  int32 ticket_balance = 1;          // DEPRECATED v1.2 — tidak diisi; pakai coin_balance
   int32 ads_remaining_today = 2;
-  string unlocked_item_key = 3;    // kosong kalau hanya perubahan saldo
+  string unlocked_item_key = 3;      // kosong kalau hanya perubahan saldo
+  int32 coin_balance = 4;            // NEW v1.2
+  int32 streak_count = 5;            // NEW v1.2 — streak login berjalan (0 = belum pernah claim)
+  bool daily_reward_available = 6;   // NEW v1.2 — true kalau last_claim_date != hari ini (waktu server)
+  int32 next_daily_reward_coins = 7; // NEW v1.2 — nominal reward kalau claim sekarang (untuk popup S2)
 }
+// WalletUpdate juga DIKIRIM server->client sekali setelah ServerHello (push,
+// tanpa diminta) sebagai snapshot wallet awal sesi — dasar popup Daily Reward
+// S2 dan render saldo di semua screen. Server mengirim ulang setiap kali saldo
+// berubah (charge match, claim ad/daily, purchase).
 // Client mengirim purchase token Play Billing setelah pembelian premium_unlock.
 // MVP: server menyimpan token + set premium=TRUE; verifikasi penuh via Play
 // Developer API menyusul saat service account Play Console siap (§8).
@@ -371,6 +391,37 @@ message PremiumPurchased { string play_purchase_token = 1; }
 // di-refresh oleh Firebase SDK). Tanpa ini push tidak mungkin terkirim.
 message RegisterPushToken { string fcm_token = 1; }
 ```
+
+#### 3.1.8 Ekonomi coin — daily reward, streak, config (GDD v1.2 §4) — NEW v1.2
+
+```protobuf
+// Client -> server, tap tombol claim di popup Daily Reward S2.
+// Jawaban: DailyRewardClaimed, atau Error("daily_already_claimed").
+message ClaimDailyReward {}
+message DailyRewardClaimed {
+  int32 reward_coins = 1;   // nominal yang baru diberikan (untuk animasi "+7")
+  int32 streak_count = 2;   // streak SETELAH claim ini (1..n)
+  int32 coin_balance = 3;   // saldo baru
+}
+
+// Server -> client, dikirim sekali setelah ServerHello (sebelum WalletUpdate
+// snapshot). Sumber kebenaran SEMUA angka ekonomi — client TIDAK meng-hardcode
+// harga game / nominal reward / cap; semua render dari sini (GDD v1.2 §10:
+// tunable tanpa release client).
+message EconomyConfig {
+  map<string, int32> game_coin_cost = 1; // game_id -> harga (default: reflex_duel 1, keepup_duo 1, air_hockey 2, wall_defense 2, connect_four 2, battleship 3)
+  int32 ad_reward_coins = 2;             // default 3
+  int32 ad_daily_cap = 3;                // default 5
+  repeated int32 daily_streak_rewards = 4; // default [5,6,7,8,10,12,15]; index = hari streak-1; hari > len = entri terakhir (GDD v1.2 §4.2 "H7+ bertahan di 15")
+  int32 starting_balance = 5;            // default 20 (pemain baru)
+}
+```
+
+Aturan charge (GDD v1.2 §4.1, server-authoritative — client hanya render disabled state):
+- Biaya ditarik per pemain saat match benar-benar mulai (`Runner.startGame()`, titik yang sama dengan pengiriman `MatchFound`+`GameStart` — mencakup match awal DAN rematch; lihat §4.2 dan §4.10).
+- Match yang melibatkan bot (StartBotMatch, queue-timeout inject bot) = GRATIS — aturan tunggal: charge hanya kalau SEMUA participant `is_bot=false`.
+- Resume async (`ResumeAsyncMatch` → rehydrate §6.4) TIDAK menarik biaya lagi — biaya async ditarik sekali saat match dibuat.
+- Gagal tarik saat mulai (saldo berubah sejak voting): kedua sisi menerima `VotingCancelled{reason:"insufficient_coins"}` (konteks voting) atau `Error("insufficient_coins")` + DISSOLVED (konteks rematch); penarikan atomik all-or-nothing untuk kedua pemain (§4.8 `ChargeMatchFee`).
 
 ### 3.2 MySQL — tabel baru (extend baseline `players`/`matches`/`match_players`, tidak diubah strukturnya)
 
@@ -471,7 +522,7 @@ CREATE TABLE IF NOT EXISTS cosmetic_item (
     id                CHAR(36)     NOT NULL,
     item_key          VARCHAR(64)  NOT NULL,  -- key stabil dari asset-list, mis. 'frame_01'
     type              ENUM('frame','emote_pack','board_skin','victory_anim') NOT NULL,
-    price_tickets     INT          NOT NULL DEFAULT 0,
+    price_coins       INT          NOT NULL DEFAULT 0,  -- v1.2: rename dari price_tickets (DB internal, bukan wire — boleh rename; migration di bawah)
     premium_exclusive BOOLEAN      NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id),
     UNIQUE KEY uq_cosmetic_key (item_key)
@@ -479,27 +530,44 @@ CREATE TABLE IF NOT EXISTS cosmetic_item (
 CREATE TABLE IF NOT EXISTS player_inventory (
     player_id   CHAR(36)  NOT NULL,
     item_id     CHAR(36)  NOT NULL,
-    source      ENUM('ad_ticket','premium','default') NOT NULL,
+    source      ENUM('coin','premium','default') NOT NULL,  -- v1.2: 'coin' menggantikan 'ad_ticket' (migration: MODIFY enum gabungan lalu UPDATE nilai lama lalu MODIFY final)
     acquired_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (player_id, item_id),
     CONSTRAINT fk_pi_player FOREIGN KEY (player_id) REFERENCES players(id),
     CONSTRAINT fk_pi_item   FOREIGN KEY (item_id)   REFERENCES cosmetic_item(id)
 );
 -- Seed data: 19 baris dari asset-list §4 (item_key = SH-2x/SH-3x asset id, mis.
--- 'frame_01'..'frame_08' price 3, 'emote_pack_01'..'04' price 5, dst — lihat §4.6 seed script).
+-- 'frame_01'..'frame_08' price 30, 'emote_pack_01'..'04' price 50, board_skin 40,
+-- victory_anim 60 — reprice coin GDD v1.2 §4.5; lihat §4.8 seed script).
 
--- 5. TicketWallet (GDD §4)
-CREATE TABLE IF NOT EXISTS ticket_wallet (
+-- 5. CoinWallet (GDD v1.2 §4) — v1.2: rename dari ticket_wallet + kolom streak.
+--    DB internal pre-launch, BUKAN wire contract — rename diizinkan; semua
+--    query store di-update dalam perubahan yang sama. Migration idempotent di
+--    schema[] (guard information_schema; skip kalau ticket_wallet tidak ada):
+--      RENAME TABLE ticket_wallet TO coin_wallet;
+--      ALTER TABLE coin_wallet
+--        ADD COLUMN streak_count    INT  NOT NULL DEFAULT 0,
+--        ADD COLUMN last_claim_date DATE NULL;
+CREATE TABLE IF NOT EXISTS coin_wallet (
     player_id         CHAR(36) NOT NULL,
-    balance           INT      NOT NULL DEFAULT 0,
+    balance           INT      NOT NULL DEFAULT 0,   -- pemain baru diisi EconomyConfig.starting_balance (20) oleh UpsertPlayer saat INSERT (bukan saat update)
+    streak_count      INT      NOT NULL DEFAULT 0,   -- streak login berjalan (GDD v1.2 §4.2)
+    last_claim_date   DATE     NULL,                 -- NULL = belum pernah claim daily
     daily_ad_count    INT      NOT NULL DEFAULT 0,
     daily_count_date  DATE     NOT NULL,
     last_ad_at        TIMESTAMP NULL,
     PRIMARY KEY (player_id),
-    CONSTRAINT fk_tw_player FOREIGN KEY (player_id) REFERENCES players(id)
+    CONSTRAINT fk_cw_player FOREIGN KEY (player_id) REFERENCES players(id)
 );
--- Cap 5 ad/hari (GDD 4): app-layer reset daily_ad_count=0 saat daily_count_date
--- != CURDATE() sebelum increment, bukan cron terpisah.
+-- Cap ad harian (EconomyConfig.ad_daily_cap): app-layer reset daily_ad_count=0
+-- saat daily_count_date != CURDATE() sebelum increment, bukan cron terpisah.
+-- Streak (GDD v1.2 §4.2), dievaluasi di ClaimDailyReward (app-layer, §4.8):
+--   last_claim_date == hari ini  -> ErrDailyAlreadyClaimed
+--   last_claim_date == kemarin   -> streak_count += 1
+--   selain itu (termasuk NULL)   -> streak_count = 1
+--   reward = daily_streak_rewards[min(streak_count, len)-1]; balance += reward.
+-- "Hari" = date di timezone server (satu region, D7 — konsisten dengan
+-- daily_count_date ads yang sudah pakai CURDATE()).
 
 -- 6. BotProfile (GDD §5.3)
 CREATE TABLE IF NOT EXISTS bot_profile (
@@ -578,6 +646,28 @@ public static partial class MatchContext
 {
     public static string PairId;                 // dari PairFound, sebelum game_id diketahui
     public static string PendingRoomCode;        // dari deep link / install referrer (§6.3b); dikonsumsi sekali setelah ServerHello
+}
+
+// Assets/Scripts/App/EconomyState.cs — BARU v1.2, pure C# static (headless-
+// testable), di-update oleh NetworkClient dari EconomyConfig + WalletUpdate.
+// SATU-SATUNYA sumber saldo/harga untuk semua controller (S2/S5/S7/S9) —
+// controller tidak menyimpan salinan saldo sendiri.
+public static class EconomyState
+{
+    public static int CoinBalance;                       // dari WalletUpdate.coin_balance terakhir
+    public static int StreakCount;                       // dari WalletUpdate.streak_count
+    public static bool DailyRewardAvailable;             // dari WalletUpdate.daily_reward_available
+    public static int NextDailyRewardCoins;              // dari WalletUpdate.next_daily_reward_coins
+    public static int AdsRemainingToday;                 // dari WalletUpdate.ads_remaining_today
+    public static IReadOnlyDictionary<string, int> GameCoinCost; // dari EconomyConfig.game_coin_cost
+    public static int AdRewardCoins;                     // dari EconomyConfig.ad_reward_coins
+
+    public static event System.Action Changed;           // controller subscribe untuk re-render saldo/disabled state
+
+    public static void ApplyConfig(EconomyConfig cfg);
+    public static void ApplyWallet(WalletUpdate w);
+    public static int CostOf(string gameId);             // 0 kalau gameId tak dikenal (fail-open render, server tetap enforce)
+    public static bool CanAfford(string gameId) => CoinBalance >= CostOf(gameId);
 }
 
 // Assets/Scripts/App/AppStateMachine.cs — EXTEND (pola existing dipertahankan:
@@ -723,7 +813,7 @@ var RulesByGame = map[string]GameRules{
 // Runner.run(): resolusi rematch berubah dari accepts map[string]bool jadi
 // decisions map[string]pb.RematchChoice. Kedua pemain harus submit (accept=true)
 // sebelum dievaluasi:
-//   - semua decisions == REMATCH_SAME_GAME  -> r.startGame() (loop internal SAMA seperti sekarang, tidak berubah)
+//   - semua decisions == REMATCH_SAME_GAME  -> r.startGame() (loop internal SAMA seperti sekarang; v1.2: startGame() menarik biaya lagi — lihat §4.10; ChargeMatchFee gagal -> broadcastError("insufficient_coins"), onExit(false) DISSOLVED)
 //   - ADA SATU decisions == NEXT_GAME        -> Runner keluar, panggil onExit(true)
 //   - ada accept=false dari siapa pun         -> broadcastError("rematch_declined", ...), onExit(false) (perilaku v0 tidak berubah)
 // Setiap kali decision baru masuk: broadcast RematchStatusUpdate{match_id, player_id, choice} (GDD 6.2.3 real-time status).
@@ -753,14 +843,15 @@ func (p *Pairing) HandleShowdownPick(playerID, gameID string)  // dari ShowdownP
 func (p *Pairing) HandleLeave(playerID string)                 // sama pola Runner.HandleLeave
 ```
 
-**Algoritma voting (`Pairing.run()`), persis GDD §6.1:**
+**Algoritma voting (`Pairing.run()`), persis GDD §6.1 (v1.2: + affordability):**
+0. **(v1.2)** Saat Pairing dibuat, ambil saldo kedua pemain (`Store.GetWalletState`) dan hitung `affordable = { gameID : cost <= min(saldoA, saldoB) }` dari `economy.Config.GameCost`. Kalau `affordable` kosong (salah satu saldo < harga game termurah) → broadcast `VotingCancelled{reason:"insufficient_coins"}`, Pairing selesai tanpa masuk VOTING. Saldo di-refresh sekali lagi tepat sebelum `StartMatch` oleh `ChargeMatchFee` (§4.8) — race saldo berubah selama voting ditangani di sana, `affordable` selama voting cukup pakai snapshot awal.
 1. Masuk `VOTING`, broadcast `PairFound` lalu mulai timer 15000ms.
-2. Vote masuk (`HandleVote`) → simpan, broadcast `VoteUpdate` (seluruh map `votes_by_player_id` saat ini).
+2. Vote masuk (`HandleVote`) → **(v1.2)** vote ke game di luar `affordable` milik pemain itu ditolak: `Error("insufficient_coins")` ke pengirim, vote tidak disimpan. Vote sah → simpan, broadcast `VoteUpdate` (seluruh map `votes_by_player_id` saat ini).
 3. Begitu SEMUA participant sudah vote:
    - Sama → `LOCKED`: broadcast `VotingLocked{game_id, countdown_ms:3000}`, tunggu 3000ms server-side, lalu `Service.StartMatch(game_id, parts, onExit)`.
-   - Beda → `SHOWDOWN`: broadcast `VotingShowdown{candidate_game_ids:[a,b], deadline:+10000ms}`. `ShowdownPick` dari salah satu → treat sebagai vote baru = kartu yang dipilih, keduanya jadi sama → `LOCKED`. Timeout 10s tanpa pick → server pilih random di antara 2 kandidat (uniform) → `LOCKED`.
+   - Beda → `SHOWDOWN`: broadcast `VotingShowdown{candidate_game_ids:[a,b], deadline:+10000ms}`. `ShowdownPick` dari salah satu → treat sebagai vote baru = kartu yang dipilih, keduanya jadi sama → `LOCKED`. Timeout 10s tanpa pick → server pilih random di antara 2 kandidat (uniform) → `LOCKED`. (Kedua kandidat pasti affordable — masing-masing lolos cek langkah 2.)
 4. Timer 15000ms habis dengan hanya SATU yang vote → pilihan yang vote otomatis `LOCKED` (GDD 6.1.4).
-5. Timer 15000ms habis dengan NOL vote → server pilih random dari 6 game dengan bobot: `reflex_duel` weight 3, 5 game lain weight 1 masing-masing (GDD 6.1.5: "bobot ke game tercepat") → `LOCKED`.
+5. Timer 15000ms habis dengan NOL vote → server pilih random **dari `affordable`** (v1.2, bukan dari 6 game penuh) dengan bobot: `reflex_duel` weight 3, game lain weight 1 masing-masing (GDD 6.1.5); kalau `reflex_duel` tidak affordable, semua weight 1 → `LOCKED`.
 6. Participant leave saat `VOTING`/`SHOWDOWN` → broadcast `VotingCancelled{reason:"opponent_left"}` ke sisi yang tinggal, Pairing selesai.
 
 ### 4.3 `internal/match/matchmaker.go`, `rooms.go` — perubahan titik integrasi
@@ -802,6 +893,8 @@ type parkedSeat struct {
 Alur (session.go, `close()` dan `handleHello()`):
 1. `session.close()`: kalau `s.actor != nil` (sedang dalam Pairing atau Runner) DAN game sedang `phasePlaying`, JANGAN langsung `actor.HandleLeave(playerID)`. Sebaliknya: daftarkan `parkedSeat{actor, graceUntil: now+graceSeconds}` di `Server.parked`, mulai `time.AfterFunc(graceSeconds, func(){ jika masih parked -> actor.HandleLeave(playerID) })`. Voting (`Pairing`) TIDAK punya grace period — leave saat voting selalu langsung `HandleLeave` (GDD 6.1.6 tidak menyebut grace untuk voting).
 2. `session.handleHello()`: setelah `UpsertPlayer` sukses, cek `Server.parked[playerID]`. Ada dan belum kadaluarsa → batalkan timer forfeit, re-`Attach` session ini ke `actor` yang sama, kirim `MatchResumed{match_id, game_id, state, grace_seconds_remaining}` (state didapat dari `actor` kalau masih Runner aktif; untuk match yang sudah dikonversi ke async dan Runner-nya sudah hibernasi, lihat §6.4 — resume lewat `ResumeAsyncMatch`, bukan lewat grace path ini).
+
+**[DEVIASI dari teks di atas, hasil review]** `MatchResumed` HANYA dikirim SATU KALI, dari dalam goroutine `Runner.run()` (lewat `cmdReattach`), bukan dua kali (satu dari `HandleReattach`/Runner, satu lagi dari `handleHello`). Alasan: dua pengiriman terpisah dari dua goroutine berbeda ke channel outbound yang sama membuat urutan kedatangan di client tidak deterministik (flaky test + client menerima duplikat `MatchResumed` yang membingungkan). `session.handleHello()` menghitung `grace_seconds_remaining` sisa secara sinkron (dari `parkedSeat.graceUntil`) lalu meneruskannya **by-value** ke `Runner.HandleReattach(playerID string, p Participant, graceSecondsRemaining int32)`, yang membawanya lewat `cmd.graceRemaining` di channel `cmds` (thread-safe — nilai ikut nilai `cmd`, bukan pointer/shared state) sampai ke `handleReattach` di dalam `run()`, yang memakainya di `MatchResumed.GraceSecondsRemaining` (bukan hardcode 0). `graceSecondsRemaining` bertipe `int32` (bukan `float64`) karena field proto `MatchResumed.grace_seconds_remaining` sendiri `int32` (§3.1) — membawa `float64` lewat cmd lalu memotongnya ke `int32` tepat sebelum dikirim tidak menambah presisi apa pun secara wire-format, jadi konversi ke whole-second dilakukan sekali di `session.graceSecondsRemaining()` (round up) sebelum masuk cmd. Lihat `internal/match/runner.go` (`HandleReattach`/`handleReattach`) dan `internal/server/session.go` (`handleHello`/`graceSecondsRemaining`).
 3. Grace period per game (dari GDD §7 AC per game, TIDAK didefault — semua sudah eksplisit di GDD):
 
 | Game | Grace | Habis grace → |
@@ -950,8 +1043,13 @@ type RoomRow struct {
 }
 type CosmeticRow struct {
     ItemKey, Type    string
-    PriceTickets     int
+    PriceCoins       int    // v1.2: rename dari PriceTickets (kolom price_coins §3.2)
     PremiumExclusive, Owned bool
+}
+type WalletState struct { // v1.2 — bahan WalletUpdate §3.1.7
+    Balance, StreakCount, AdsRemainingToday int
+    DailyRewardAvailable                    bool
+    NextDailyRewardCoins                    int // dihitung dari streak berjalan + economy.Config.DailyStreakRewards
 }
 
 type Store interface {
@@ -988,12 +1086,15 @@ type Store interface {
     ExpireRoomsBefore(ctx context.Context, now time.Time) ([]RoomRow, error) // set 'expired', kembalikan yang berubah (untuk notifikasi RoomExpired)
     PurgeExpiredRoomsBefore(ctx context.Context, cutoff time.Time) error     // hapus row 'expired' > 24h
 
-    // Wallet & shop (S9)
+    // Wallet & shop (S9) — v1.2: currency coin; GetWallet/AddAdTicket lama DIGANTI
+    // (Go internal, bukan wire — rename method diizinkan, semua call site di-update bersamaan)
     ListCosmetics(ctx context.Context, playerID string) ([]CosmeticRow, error)
-    GetWallet(ctx context.Context, playerID string) (balance, adsRemainingToday int, err error)
-    AddAdTicket(ctx context.Context, playerID string, dailyCap int) (newBalance, adsRemaining int, err error) // atomik: reset harian kalau daily_count_date != CURDATE(); ErrDailyCapReached
-    PurchaseCosmetic(ctx context.Context, playerID, itemKey string) (newBalance int, err error)               // tx: saldo cukup + belum dimiliki + cek premium_exclusive
-    GrantCosmetic(ctx context.Context, playerID, itemKey, source string) error                                // premium claim / default seed
+    GetWalletState(ctx context.Context, playerID string, now time.Time) (WalletState, error)                  // menggantikan GetWallet; now menentukan daily_reward_available & reset ads harian
+    AddAdCoins(ctx context.Context, playerID string, rewardCoins, dailyCap int) (WalletState, error)          // menggantikan AddAdTicket; atomik: reset harian kalau daily_count_date != CURDATE(); ErrDailyCapReached
+    ClaimDailyReward(ctx context.Context, playerID string, now time.Time, streakRewards []int) (rewardCoins int, ws WalletState, err error) // v1.2 BARU; logika streak §3.2; ErrDailyAlreadyClaimed
+    ChargeMatchFee(ctx context.Context, playerIDs []string, amount int) error                                 // v1.2 BARU; SATU tx all-or-nothing untuk semua pemain; ErrInsufficientCoins (wrap playerID); dipanggil Runner.startGame() §4.10
+    PurchaseCosmetic(ctx context.Context, playerID, itemKey string) (newBalance int, err error)               // tx: saldo cukup + belum dimiliki + cek premium_exclusive; error string proto: "insufficient_coins"
+    GrantCosmetic(ctx context.Context, playerID, itemKey, source string) error                                // premium claim / default seed; source v1.2: 'coin'|'premium'|'default'
 
     // Metrik (§4.9)
     SetMatchEndReason(ctx context.Context, matchID, reason string) error
@@ -1002,7 +1103,7 @@ type Store interface {
 }
 ```
 
-Seed script (`cmd/twoup-seed` atau statement idempotent di `schema[]`): 19 baris `cosmetic_item` dari GDD §4 (8 frame @3, 4 emote_pack @5, 2 board_skin C4 @4, 2 board_skin AH @4, 1 board_skin BS @4, 2 victory_anim @6; `frame_golden_crown` premium_exclusive=TRUE price 0), 6 baris `bot_profile` + 36 baris availability.
+Seed script (`cmd/twoup-seed` atau statement idempotent di `schema[]`): 19 baris `cosmetic_item` dari GDD v1.2 §4.5 (8 frame @30, 4 emote_pack @50, 2 board_skin C4 @40, 2 board_skin AH @40, 1 board_skin BS @40, 2 victory_anim @60; `frame_golden_crown` premium_exclusive=TRUE price 0), 6 baris `bot_profile` + 36 baris availability. v1.2: seed upsert HARGA juga (`ON DUPLICATE KEY UPDATE price_coins=VALUES(price_coins)`) supaya reprice ticket→coin mengoreksi row lama di DB dev.
 
 ### 4.9 Instrumentasi metrik gate (item 8)
 
@@ -1037,22 +1138,53 @@ SELECT pair_key,
 FROM rematch_decision GROUP BY pair_key;
 ```
 
+### 4.10 `internal/economy` — konfigurasi + titik charge (v1.2, GDD v1.2 §4)
+
+```go
+// internal/economy/economy.go — BARU. Satu sumber angka ekonomi server-side;
+// dikirim ke client apa adanya sebagai proto EconomyConfig (§3.1.8).
+type Config struct {
+    GameCost           map[string]int // game_id -> coin
+    AdRewardCoins      int
+    AdDailyCap         int
+    DailyStreakRewards []int          // index = hari streak-1; hari > len(slice) memakai entri terakhir
+    StartingBalance    int
+}
+func DefaultConfig() Config // {reflex_duel:1, keepup_duo:1, air_hockey:2, wall_defense:2, connect_four:2, battleship:3}, 3, 5, [5,6,7,8,10,12,15], 20
+// [DECIDED: "remote config" GDD v1.2 §10 di MVP = env var ECONOMY_CONFIG_JSON
+// (JSON penuh Config, override DefaultConfig saat startup; pola sama seperti
+// DSN existing) — tunable per deploy tanpa release client, tanpa dependency
+// remote-config eksternal baru.]
+func Load(env string) (Config, error) // env kosong -> DefaultConfig(); JSON invalid -> error fatal startup
+```
+
+Integrasi (semua server-authoritative, client hanya render):
+- `Service` mendapat field `Economy economy.Config`.
+- **Sesi**: setelah `ServerHello`, session mengirim `EconomyConfig` lalu snapshot `WalletUpdate` (dari `Store.GetWalletState`) — urutan ini sebelum pesan lain supaya S2 langsung bisa render saldo + popup daily.
+- **Titik charge tunggal — `Runner.startGame()`**: sebelum mengirim `MatchFound`+`GameStart`, kalau SEMUA participant human (`is_bot=false` semua) → `Store.ChargeMatchFee(playerIDs, Economy.GameCost[gameID])`, lalu kirim `WalletUpdate` baru ke tiap pemain. Gagal (`ErrInsufficientCoins`) → match TIDAK dimulai: konteks pertama kali (dari Pairing) → `VotingCancelled{reason:"insufficient_coins"}` + onExit(false); konteks rematch → `broadcastError("insufficient_coins")` + onExit(false) DISSOLVED. Ini mencakup match awal, rematch (charge lagi, GDD v1.2 §4.1), dan match hasil Next Game (lewat Pairing→StartMatch→startGame lagi). Match dengan bot apa pun = gratis (skip charge). Resume async (rehydrate §6.4) TIDAK lewat startGame-charge — flag `resumed` di Runner memastikan tidak ada charge ulang.
+- **Wallet row dibuat lazy** oleh `GetWalletState`/`ChargeMatchFee`/`AddAdCoins`/`ClaimDailyReward` (INSERT ... ON DUPLICATE KEY): INSERT pertama memakai `balance = StartingBalance` (pemain baru dapat 20 coin, GDD v1.2 §4.1). `UpsertPlayer` existing TIDAK diubah (tetap 4 method baseline utuh).
+- **`ClaimAdTicket` handler**: grant `Economy.AdRewardCoins` via `Store.AddAdCoins`, jawab `WalletUpdate`.
+- **`ClaimDailyReward` handler**: `Store.ClaimDailyReward(playerID, now, Economy.DailyStreakRewards)`, jawab `DailyRewardClaimed` + broadcast `WalletUpdate` ke sesi itu.
+- **`Pairing`**: filter affordability langkah 0/2/5 algoritma voting (§4.2) memakai `Economy.GameCost`.
+
 ## 5. Scene & screen map
 
 Semua scene baru mengikuti pola `Assets/Editor/SkeletonBuilder.cs` (editor-authored, UGUI+TMP, `CanvasScaler` 1080×1920, `GridLayoutGroup`/`HorizontalLayoutGroup` sesuai kebutuhan, `Place()`/`CreateButton()`/`CreateText()`/`SetRef()` helper existing di-extend, bukan ditulis ulang). Root tiap screen tetap `Screen_<Nama>` di bawah satu `UICanvas` per scene aktif (konvensi client sudah ada). Referensi sprite = ID persis dari `asset-list.md`.
 
 | # | Scene file | Controller | GameObject utama | Asset (asset-list ID) |
 |---|-----------|------------|-------------------|------------------------|
-| S1/S2 | `Boot.unity` (existing, extend), `Home.unity` (baru — **menggantikan `Lobby.unity` skeleton**: scene + `BuildLobbyScene()` dihapus dari SkeletonBuilder, `LobbyController.cs` dipensiunkan; fungsinya terbagi ke Home/InviteRoom/Queue) | `BootController` (existing), `HomeController` (baru) | Home: `Btn_PlayWithFriend`, `Btn_QuickMatch`, `Btn_VsBot`, `Badge_AsyncCount`, `Btn_Profile`/`Btn_Shop`/`Btn_Settings` | SH-16 bg_home, SH-13 icon_set_ui |
+| S1/S2 | `Boot.unity` (existing, extend), `Home.unity` (baru — **menggantikan `Lobby.unity` skeleton**: scene + `BuildLobbyScene()` dihapus dari SkeletonBuilder, `LobbyController.cs` dipensiunkan; fungsinya terbagi ke Home/InviteRoom/Queue) | `BootController` (existing), `HomeController` (baru) | Home: `Btn_PlayWithFriend`, `Btn_QuickMatch`, `Btn_VsBot`, `Badge_AsyncCount`, `Btn_Profile`/`Btn_Shop`/`Btn_Settings`; v1.2: `Text_CoinBalance` (header, render dari `EconomyState`), `Panel_DailyReward` (popup modal: `Row_StreakDays` 7 slot dengan hari aktif tersorot, `Text_RewardAmount` "+N", `Btn_ClaimDaily` → `ClaimDailyReward`; auto-show saat `EconomyState.DailyRewardAvailable` begitu masuk Home, sekali per sesi) | SH-16 bg_home, SH-13 icon_set_ui |
 | S3 | `InviteRoom.unity` (baru) | `InviteRoomController` | `Panel_CreateRoom` (kode 6-char besar + `Btn_ShareDeepLink`), `Panel_JoinRoom` (`InputField_RoomCode` pakai `input_field_code`), `Text_WaitingOpponent`, `Text_TtlCountdown` | SH-14 input_field_code |
 | S4 | `Queue.unity` (baru) | `QueueController` | `Text_QueueStatus`, `Anim_MatchFound` (Image, main dari `anim_matchfound` frame sheet), `Btn_Cancel` | SH-35 anim_matchfound |
-| S5 | `Voting.unity` (baru) | `VotingController` | `Grid_GameCards` (`GridLayoutGroup`, 6x `GameCard` prefab-equivalent = child dibuat per `GameCatalog.entries`), tiap card: `Image_Art` (gamecard_xx) + `Tag_Mode`/`Tag_Pacing` + highlight state; `Panel_Showdown` (2 card + `Anim_CoinFlip`); `Text_PairBadge` (milestone/duo level, data dari `PairFound` §3.1.2); **`Panel_BotPicker`** (tampil saat entry via `Btn_VsBot` dari S2, menggantikan flow voting: grid game sama + segmen tier Easy/Medium/Hard + `Btn_StartBotMatch` → kirim `StartBotMatch{game_id, tier}`) | SH-30 gamecard_xx (x6), SH-31 tag_* (x4), SH-34 anim_coinflip, SH-32/33 badge_* |
+| S5 | `Voting.unity` (baru) | `VotingController` | `Grid_GameCards` (`GridLayoutGroup`, 6x `GameCard` prefab-equivalent = child dibuat per `GameCatalog.entries`), tiap card: `Image_Art` (gamecard_xx) + `Tag_Mode`/`Tag_Pacing` + highlight state + v1.2 `Text_CoinCost` (dari `EconomyState.CostOf`, disembunyikan di mode BotPicker karena vs Bot gratis) + disabled state saat `!EconomyState.CanAfford` (interactable=false + `Btn_GetCoins` kecil di kartu → `Panel_GetCoins`); `Panel_Showdown` (2 card + `Anim_CoinFlip`); `Text_PairBadge` (milestone/duo level, data dari `PairFound` §3.1.2); **`Panel_BotPicker`** (tampil saat entry via `Btn_VsBot` dari S2, menggantikan flow voting: grid game sama + segmen tier Easy/Medium/Hard + `Btn_StartBotMatch` → kirim `StartBotMatch{game_id, tier}`) | SH-30 gamecard_xx (x6), SH-31 tag_* (x4), SH-34 anim_coinflip, SH-32/33 badge_* |
 | S6 | `<GameId>.unity` x6 (`ConnectFour.unity` existing, +5 baru: `ReflexDuel.unity`, `AirHockey.unity`, `WallDefense.unity`, `KeepUpDuo.unity`, `Battleship.unity`) | `<GameId>Controller` per scene (`ConnectFourController` existing pattern) | HUD umum: `Text_Turn`/`Text_Score`, `Grid_EmoteWheel` (6+16 tombol emote), `Text_ConnectionIndicator`; per-game board (lihat detail di bawah) | game-specific asset section 2-7 asset-list |
-| S7 | `Result.unity` (baru) | `ResultController` | `Text_ResultHeadline`, `Text_LedgerDelta`/`Text_DuoScoreDelta`, `Text_SeriesCounter`, `Btn_Rematch`/`Btn_NextGame`/`Btn_Leave`, `Text_OpponentDecision` | — |
+| S7 | `Result.unity` (baru) | `ResultController` | `Text_ResultHeadline`, `Text_LedgerDelta`/`Text_DuoScoreDelta`, `Text_SeriesCounter`, `Btn_Rematch`/`Btn_NextGame`/`Btn_Leave`, `Text_OpponentDecision`; v1.2: `Btn_Rematch` menampilkan harga coin game ini (label "Rematch · 2🪙"), disabled + `Btn_GetCoins` saat saldo kurang (vs Bot: tanpa harga, selalu enabled) | — |
 | S8 | `Profile.unity` (baru) | `ProfileController` | `TabBar_VersusCoop`, `List_Pairs` (ScrollView, row template = pasangan + badge), `Panel_PairDetail` (head-to-head per game) | SH-15 tab_bar, SH-32/33 badge_* |
-| S9 | `Shop.unity` (baru) | `ShopController` | `Text_TicketBalance`, `Btn_WatchAd`, `Grid_Catalog` (ScrollView + `GridLayoutGroup`, 19 item), `Btn_BuyPremium` | SH-20..27 (avatar/frame/emote), C4-02/AH-02/BS-02 (skin), SH-26 victory_anim |
+| S9 | `Shop.unity` (baru) | `ShopController` | `Text_CoinBalance` (v1.2, dari `EconomyState`), `Btn_WatchAd` (label "+3 🪙", nominal dari `EconomyState.AdRewardCoins`), `Grid_Catalog` (ScrollView + `GridLayoutGroup`, 19 item, harga dari `ShopItem.price_coins`), `Btn_BuyPremium` | SH-20..27 (avatar/frame/emote), C4-02/AH-02/BS-02 (skin), SH-26 victory_anim |
 | S10 | `Settings.unity` (baru) | `SettingsController` | toggle sound/music/vibration, `Btn_RestorePurchase`, link privacy/ToS, `Text_Version` | — |
-| S11 | `AsyncMatches.unity` (baru) | `AsyncMatchesController` | `List_AsyncMatches` (ScrollView, row = `your_turn_banner` + opponent + deadline countdown), tap row → `ResumeAsyncMatch` → `AppStateMachine.ToGame()` | BS-08 your_turn_banner |
+| S11 | `AsyncMatches.unity` (baru) | `AsyncMatchesController` | `List_AsyncMatches` (ScrollView, row = `your_turn_banner` + opponent + deadline countdown), tap row → `ResumeAsyncMatch` → `AppStateMachine.ToGame()` (tanpa charge — biaya async sudah ditarik saat match dibuat, §3.1.8) | BS-08 your_turn_banner |
+
+**`Panel_GetCoins` (overlay bersama, v1.2):** panel modal kecil (`Text_Headline` "Not enough coins", `Text_Balance`, `Btn_WatchAdShortcut` "+3 🪙" → `ClaimAdTicket`, `Btn_Close`) — di-build oleh builder ke scene `Home`, `Voting`, `Result`, `Shop` (konvensi no-runtime-constructed-UI; satu metode builder helper `AddGetCoinsPanel(root)` dipakai 4 scene, logika di satu komponen `GetCoinsPanelController` yang sama). Saat `ads_remaining_today == 0`: tombol ad disabled + copy "Come back tomorrow!".
 
 **Detail S6 per game (board root di bawah `Screen_Game`, HUD sama seperti `ConnectFourController` existing pola grid+tap-zone):**
 
@@ -1080,8 +1212,11 @@ VOTING/SHOWDOWN --(salah satu leave)--> CANCELLED
 SHOWDOWN --(ShowdownPick salah satu)--> LOCKED
 SHOWDOWN --(timeout)--> LOCKED (random di antara 2 kandidat)
 LOCKED --(auto)--> COUNTDOWN [3s, client-local dari VotingLocked.countdown_ms]
-COUNTDOWN --(auto)--> IN_GAME (Service.StartMatch dipanggil, MatchFound+GameStart terkirim seperti v0)
+COUNTDOWN --(auto)--> IN_GAME (Service.StartMatch dipanggil; v1.2: startGame() menarik ChargeMatchFee
+                     SEBELUM MatchFound+GameStart — gagal -> VotingCancelled{insufficient_coins}, §4.10)
 ```
+
+v1.2: sebelum PAIRED masuk VOTING, Pairing menghitung set `affordable` (langkah 0 §4.2); kosong → `VotingCancelled{reason:"insufficient_coins"}` tanpa VOTING.
 
 Jalur **vs Bot** (GDD S2 → S5 picker) MELEWATI seluruh state machine ini: `StartBotMatch{game_id, tier}` dari status idle → server validasi game+tier, pilih bot random dari `bot_profile` (availability game tsb), `UpsertBotPlayer`, langsung `Service.StartMatch` → `MatchFound`+`GameStart`. Tanpa `PairFound`, tanpa voting, tanpa countdown server-side (client boleh menampilkan countdown 3s lokal untuk konsistensi rasa).
 
@@ -1089,7 +1224,7 @@ Jalur **vs Bot** (GDD S2 → S5 picker) MELEWATI seluruh state machine ini: `Sta
 
 ```
 RESULT_SHOWN --(auto)--> DECIDING [20s timer, RematchStatusUpdate broadcast tiap keputusan masuk]
-DECIDING --(keduanya REMATCH_SAME_GAME)--> REMATCH (Runner.startGame() ulang, game SAMA, series counter lanjut — client-side counter, tidak disimpan server)
+DECIDING --(keduanya REMATCH_SAME_GAME)--> REMATCH (Runner.startGame() ulang, game SAMA, series counter lanjut — client-side counter, tidak disimpan server; v1.2: ChargeMatchFee LAGI di startGame(), gagal -> broadcastError insufficient_coins -> DISSOLVED)
 DECIDING --(ada NEXT_GAME dari salah satu, keduanya sudah submit)--> NEXT_GAME (Runner exit onExit(true) -> Pairing baru untuk pasangan sama, VOTING lagi, series counter reset)
 DECIDING --(ada accept=false / timeout 20s)--> DISSOLVED (Runner exit onExit(false), broadcastError rematch_declined/rematch_timeout — pesan v0 tidak berubah)
 ```
@@ -1195,11 +1330,26 @@ parked --(timer habis)--> actor.HandleLeave(playerID) (forfeit ATAU, untuk C4/BS
 | | `TestRunner_AsyncMode_NoTurnTimer` | match hasil resume async → timer 30s tidak aktif (AC-C4-07) |
 | `internal/match/botmatch_test.go` | `TestStartBotMatch_SkipsVotingStartsTierBot` | `StartBotMatch{game_id, tier}` → `MatchFound`+`GameStart` langsung (tanpa `PairFound`), bot ber-tier benar, `players.is_bot=true` |
 | `internal/match/reconnect_test.go` (lanjutan) | `TestReconnect_Reattach_ReceivesCurrentState` | `HandleReattach` menukar participant; session baru menerima `GameState` terkini, session lama tidak menerima apa pun lagi |
-| `internal/store/store_test.go` (jalan di memory DAN mysql via shared suite) | `TestWallet_DailyAdCap_ResetsByDate` | klaim ke-6 hari yang sama → `ErrDailyCapReached`; hari berganti → counter reset |
+| `internal/store/store_test.go` (jalan di memory DAN mysql via shared suite) | `TestWallet_DailyAdCap_ResetsByDate` | klaim `AddAdCoins` ke-(cap+1) hari yang sama → `ErrDailyCapReached`; hari berganti → counter reset; tiap klaim sukses menambah `reward_coins` (3) ke balance |
+| | `TestWallet_LazyCreate_StartingBalance` | akses wallet pertama pemain baru → row dibuat dengan `balance=20` (starting balance); akses berikutnya tidak me-reset saldo |
+| | `TestClaimDailyReward_StreakProgression` | claim 7 hari berturut (now dimajukan per hari) → reward 5,6,7,8,10,12,15; hari ke-8 → tetap 15, streak_count=8 |
+| | `TestClaimDailyReward_SameDayRejected` | claim kedua di hari yang sama → `ErrDailyAlreadyClaimed`, saldo & streak tidak berubah |
+| | `TestClaimDailyReward_MissedDayResetsStreak` | claim, skip 1 hari, claim lagi → streak_count=1, reward=5 |
+| | `TestChargeMatchFee_AtomicAllOrNothing` | p1 saldo cukup, p2 tidak → `ErrInsufficientCoins`, saldo p1 TIDAK berkurang; keduanya cukup → keduanya berkurang tepat `amount` |
 | | `TestPairLedger_CoopIncrementsAggregateOnly` | `RecordCoopResult` menaikkan `total_matches` baris agregat tanpa menyentuh wins/draws (milestone gabungan GDD 5.1) |
-| | `TestPurchaseCosmetic_RejectsInsufficientAndDuplicate` | saldo kurang / sudah dimiliki / premium_exclusive tanpa premium → error, saldo tidak berubah |
+| | `TestPurchaseCosmetic_RejectsInsufficientAndDuplicate` | saldo kurang / sudah dimiliki / premium_exclusive tanpa premium → error `insufficient_coins`/`already_owned`/`premium_required`, saldo tidak berubah |
 | | `TestRecordBotResult_UpdatesPersonalStats` | hasil vs bot → `bot_wins/losses/draws` naik, `player_bot_best` ter-upsert; `pair_ledger` TIDAK tersentuh |
+| `internal/match/economy_test.go` (v1.2) | `TestStartMatch_ChargesBothPlayers` | match human-vs-human `air_hockey` mulai → saldo kedua pemain -2, `WalletUpdate` terkirim ke keduanya SEBELUM `GameStart` |
+| | `TestStartMatch_BotMatchFree` | `StartBotMatch` dan queue-timeout inject bot → saldo pemain human TIDAK berubah |
+| | `TestRematch_ChargesAgain` | kedua `REMATCH_SAME_GAME` → saldo berkurang lagi sebesar harga game yang sama |
+| | `TestRematch_InsufficientCoins_Dissolves` | saldo dihabiskan sebelum rematch → `Error("insufficient_coins")`, `onExit(false)`, saldo lawan yang cukup TIDAK berkurang |
+| | `TestVoting_UnaffordableVoteRejected` | vote game harga 3 dengan saldo 2 → `Error("insufficient_coins")`, vote tidak tercatat di `VoteUpdate` |
+| | `TestVoting_NoVoteFallback_AffordableOnly` | 0 vote timeout, saldo salah satu hanya cukup game 1-coin → `VotingLocked.game_id` ∈ {reflex_duel, keepup_duo} |
+| | `TestVoting_BothBroke_CancelsBeforeVoting` | kedua saldo 0 → `VotingCancelled{reason:"insufficient_coins"}`, VOTING tidak pernah dimulai |
+| | `TestAsyncResume_NoRecharge` | C4 hibernasi → resume → saldo TIDAK berkurang lagi (charge hanya saat match dibuat) |
 | `internal/server/meta_test.go` | `TestGetProfile_ReturnsPairsAndBotStats` | `GetProfile` → `ProfileData` berisi pairs terurut `last_played_at` desc + stat bot |
+| | `TestSessionHello_SendsEconomyConfigThenWallet` (v1.2) | setelah `ServerHello` → sesi menerima `EconomyConfig` (angka = `DefaultConfig`/env override) lalu `WalletUpdate` snapshot |
+| | `TestClaimAdTicket_GrantsAdRewardCoins` (v1.2) | `ClaimAdTicket` → `WalletUpdate.coin_balance` naik 3, `ads_remaining_today` turun 1 |
 | | `TestRegisterPushToken_Persisted` | `RegisterPushToken` → `players.fcm_token` terisi |
 | | `TestRoomStatusEndpoint_ReturnsStateJson` | `GET /r/{code}/status` → JSON state+expiry benar; code tak dikenal → 404 |
 
@@ -1214,6 +1364,9 @@ parked --(timer habis)--> actor.HandleLeave(playerID) (forfeit ATAU, untuk C4/BS
 | `ReflexDuelStateFormatterTests` | `FormatReactionMs_HandlesUncompensatedFlag` | (lihat catatan §9) format tampilan ms tidak crash pada nilai batas |
 | `DeepLinkParserTests` | `Parse_ExtractsCodeFromHttpsAndCustomScheme` | `https://<domain>/r/ABC234` dan `twoup://r/ABC234` → `ABC234`; path lain → null |
 | `InstallReferrerParserTests` | `Parse_ExtractsRoomCodeFromUtmContent` | `utm_source=invite&utm_content=ABC234` → `ABC234`; referrer organik tanpa utm_content → null |
+| `EconomyStateTests` (v1.2) | `CostOf_ReturnsConfigValue_UnknownGameZero` | setelah `ApplyConfig`, `CostOf("battleship")`=3; game tak dikenal → 0 |
+| | `CanAfford_ComparesBalanceToCost` | saldo 2: `CanAfford("air_hockey")`=true (2), `CanAfford("battleship")`=false (3) |
+| | `ApplyWallet_RaisesChangedEvent` | `ApplyWallet` → event `Changed` terpanggil tepat sekali, properti ter-update |
 
 ---
 
@@ -1245,6 +1398,7 @@ parked --(timer habis)--> actor.HandleLeave(playerID) (forfeit ATAU, untuk C4/BS
 - Helper class murni C# di §7b (headless testable) — tulis DAN test bareng, jangan pisah fase.
 - `NetworkClient.SendRateLimited` (§4.7) untuk 3 game real-time.
 - Ping interval kondisional 2s selama `reflex_duel` aktif (§4.7).
+- **v1.2 (ekonomi coin — semua screen ini SUDAH dibangun; ini task RETROFIT, bukan scene baru):** `EconomyState` (§3.3, pure C# + EditMode test §7b) + event `NetworkClient` baru (EconomyConfig/WalletUpdate/DailyRewardClaimed); retrofit `HomeController` (Text_CoinBalance + Panel_DailyReward), `VotingController` (Text_CoinCost + disabled state per kartu), `ResultController` (harga di Btn_Rematch + disabled), `ShopController` (rename Text_TicketBalance→Text_CoinBalance, baca `price_coins`/`coin_balance`); `Panel_GetCoins` bersama via builder helper `AddGetCoinsPanel` + `GetCoinsPanelController` (§5). Perubahan builder scene = edit `Assets/Editor/SceneBuilders/` per scene (konvensi terkunci: scene digenerate builder, bukan live_editor).
 
 **Urutan fase disarankan (logika dulu, front-load parallel):**
 1. Proto regen (client `tools/generate-protos.ps1` setelah proto server di-extend) — SERIAL, blocking semua yang lain.
@@ -1261,6 +1415,7 @@ parked --(timer habis)--> actor.HandleLeave(playerID) (forfeit ATAU, untuk C4/BS
 
 - v1 2026-07-15: initial, dari GDD.md v1 + asset-list.md v1 + pembacaan langsung repo server `10cc70b` / client `e1ccd0a`.
 - v1.1 2026-07-16: revisi hasil review. Ditambah: kontrak meta-systems §3.1.7 (Profile/Shop/Settings/push token), `StartBotMatch` (vs Bot skip voting) + `MatchWentAsync`, `PairFound` bawa badge data, extension `store.Store` lengkap (§4.8), instrumentasi metrik (§4.9), turn timer C4 via `TurnBased` + `GameRules` (AC-C4-06), `HandleReattach` (reconnect seat swap), deep link/install referrer/landing status endpoint (§6.3b), keputusan kamera Wall Defense DITULIS di §4.7 (render identik — memperbaiki referensi dangling B3 v1), schema: +`player_bot_best`, kolom players (avatar/frame/premium/is_bot/bot stats), `matches.coop_score`, `match_players.result` +`'coop_end'`, `end_reason` tanpa `'rematch_declined'`; `Factory.NewBot(self, tier)`, `RematchWindow` default 30s→20s, `ReflexDuelInput` tanpa client timestamp, semantik BS placement di async store, milestone versus+co-op digabung di baris agregat, routing scene via `GameCatalog.sceneName`, spec `AppStateMachine` baru, retirement `Lobby.unity`, test plan +20 kasus, prasyarat SDK (Firebase/Ads/IAP/Install Referrer).
+- v1.2 2026-07-17: **cascade ekonomi coin dari GDD v1.2** (dikerjakan SETELAH client 35 task & server 32 task selesai — semua item v1.2 adalah RETROFIT di atas kode jadi). Proto (additive-only dijaga): field coin baru di `ShopItem`/`ShopData`/`WalletUpdate` (field ticket DEPRECATED, tidak diisi lagi), message baru `ClaimDailyReward`/`DailyRewardClaimed`/`EconomyConfig` (oneof 102-104), `ClaimAdTicket` semantik jadi grant coin, error string `insufficient_coins`; `WalletUpdate` jadi push snapshot pasca-ServerHello. DB (internal, boleh rename): `ticket_wallet`→`coin_wallet` + `streak_count`/`last_claim_date`, `cosmetic_item.price_tickets`→`price_coins` + reprice ×10, `player_inventory.source` `'ad_ticket'`→`'coin'`. Server: package `internal/economy` (Config + `ECONOMY_CONFIG_JSON` override), titik charge tunggal di `Runner.startGame()` (match awal + rematch; bot match & resume async gratis), affordability filter di `Pairing` (langkah 0/2/5 §4.2), store: `GetWalletState`/`AddAdCoins`/`ClaimDailyReward`/`ChargeMatchFee` (menggantikan `GetWallet`/`AddAdTicket`), wallet lazy-create dengan starting balance 20. Client: `EconomyState` static (§3.3), retrofit S2 (saldo + popup daily reward) / S5 (harga + disabled per kartu) / S7 (harga di rematch) / S9 (coin), `Panel_GetCoins` bersama. Test plan +19 kasus (6 store, 8 economy match, 2 meta, 3 client EditMode). Sekalian: dua tambahan yang selama ini hanya ada di salinan `twoup-server/docs/TDD.md` (hasil run ccq server) di-merge ke kanonik — catatan [DEVIASI] `MatchResumed`/`HandleReattach` di §4.4 dan blocker B6 (WebSocket OriginPatterns) di §11; ketiga salinan kembali identik.
 
 ---
 
@@ -1271,3 +1426,4 @@ parked --(timer habis)--> actor.HandleLeave(playerID) (forfeit ATAU, untuk C4/BS
 - **B3 — Orientasi kamera Wall Defense** — SUDAH diputuskan di §4.7 (bullet "Orientasi render Wall Defense"): kedua client me-render orientasi **identik** (gawang bersama di bawah, TANPA mirroring per seat; identitas via warna paddle + label "YOU"). Bukan blocker; dicatat untuk audit trail bahwa GDD AC-WD-01 menyerahkan keputusan ini ke TDD dan sudah diambil (beda dari B1 yang sengaja ditahan untuk fase design). [Catatan review: draft v1 mengklaim keputusan "mirror per seat" yang tidak pernah ditulis di §4.7 — v1.1 menulis keputusan sebenarnya dan memilih render identik.]
 - **B4 — Harga regional IAP `premium_unlock`.** GDD §4 eksplisit "cek per region saat setup Play Console" — tidak menggate kode (SKU id sudah fix), hanya menggate submit ke Play Console. Non-blocking untuk implementasi.
 - **B5 — Nama/trademark "2UP" di Play Store.** GDD §10, riset masih terbuka. Non-blocking untuk implementasi (package name sudah aman diputuskan terpisah, `com.evermore.twoup`), blocking untuk submit final ke Play Store.
+- **B6 — Restriksi origin WebSocket (`internal/server/server.go` `handleWS`).** `websocket.Accept` dipanggil dengan `OriginPatterns: []string{"*"}` — aman untuk saat ini karena satu-satunya client adalah aplikasi Unity (bukan halaman browser, jadi tidak ada header `Origin` yang perlu divalidasi), tapi ini sengaja ditandai `TODO(contract)` di kode, bukan dibiarkan tanpa jejak. Sebelum endpoint `/ws` diekspos ke client berbasis browser (mis. build WebGL atau companion web di masa depan), `OriginPatterns` harus dipersempit ke `LANDING_ORIGIN` (atau allowlist eksplisit) — pola yang sama dengan CORS `GET /r/{code}/status` di §6.3b. Non-blocking untuk client Unity/mobile yang ada sekarang; blocking hanya kalau/ketika ada entry point WS berbasis browser.
