@@ -28,13 +28,14 @@ namespace TwoUp.Tests.EditMode.Scenes
             Assert.IsNotNull(controller, "Screen_Shop is missing ShopController");
 
             SceneAsserts.AssertRefNotNull(controller, "backButton");
-            SceneAsserts.AssertRefNotNull(controller, "ticketBalanceText");
+            SceneAsserts.AssertRefNotNull(controller, "coinBalanceText");
             SceneAsserts.AssertRefNotNull(controller, "watchAdButton");
             SceneAsserts.AssertRefNotNull(controller, "watchAdLabel");
             SceneAsserts.AssertRefNotNull(controller, "content");
             SceneAsserts.AssertRefNotNull(controller, "rowTemplate");
             SceneAsserts.AssertRefNotNull(controller, "buyPremiumButton");
             SceneAsserts.AssertRefNotNull(controller, "toastText");
+            SceneAsserts.AssertRefNotNull(controller, "getCoinsPanel");
         }
     }
 }
