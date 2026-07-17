@@ -12,7 +12,7 @@ namespace TwoUp.EditorTools
         [MenuItem("2UP/Build Scenes/Invite")]
         public static void Build()
         {
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("Invite");
             var screen = UiKit.CreateCanvasWithScreen("Screen_Invite");
 
             var back = UiKit.CreateButton(screen.transform, "Btn_Back", "Back", new Vector2(180, 90), UiKit.ButtonMuted);
@@ -50,7 +50,7 @@ namespace TwoUp.EditorTools
             UiKit.Place(toast.gameObject, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 40), new Vector2(920, 80));
             toast.gameObject.SetActive(false);
 
-            var controller = screen.AddComponent<InviteRoomController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<InviteRoomController>(screen);
             UiKit.SetRef(controller, "backButton", back);
             UiKit.SetRef(controller, "roomCodeText", roomCode);
             UiKit.SetRef(controller, "ttlCountdownText", ttlCountdown);

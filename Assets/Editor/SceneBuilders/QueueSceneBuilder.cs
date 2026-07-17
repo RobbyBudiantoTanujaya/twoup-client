@@ -12,7 +12,7 @@ namespace TwoUp.EditorTools
         [MenuItem("2UP/Build Scenes/Queue")]
         public static void Build()
         {
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("Queue");
             var screen = UiKit.CreateCanvasWithScreen("Screen_Queue");
 
             var status = UiKit.CreateText(screen.transform, "Text_Status", "Finding an opponent...", 52, Color.white);
@@ -24,7 +24,7 @@ namespace TwoUp.EditorTools
             var cancel = UiKit.CreateButton(screen.transform, "Btn_Cancel", "Cancel", new Vector2(500, 110), UiKit.ButtonMuted);
             UiKit.Place(cancel.gameObject, Center, Center, new Vector2(0, -180), new Vector2(500, 110));
 
-            var controller = screen.AddComponent<QueueController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<QueueController>(screen);
             UiKit.SetRef(controller, "statusText", status);
             UiKit.SetRef(controller, "hintText", hint);
             UiKit.SetRef(controller, "cancelButton", cancel);

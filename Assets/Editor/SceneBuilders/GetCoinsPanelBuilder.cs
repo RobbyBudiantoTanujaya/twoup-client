@@ -40,7 +40,7 @@ namespace TwoUp.EditorTools
             var closeButton = UiKit.CreateButton(chrome.transform, "Btn_Close", "Close", new Vector2(300, 90), UiKit.ButtonMuted);
             UiKit.Place(closeButton.gameObject, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 30), new Vector2(300, 90));
 
-            var controller = panel.AddComponent<GetCoinsPanelController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<GetCoinsPanelController>(panel);
             UiKit.SetRef(controller, "headline", headline);
             UiKit.SetRef(controller, "balanceText", balanceText);
             UiKit.SetRef(controller, "watchAdButton", watchAdButton);

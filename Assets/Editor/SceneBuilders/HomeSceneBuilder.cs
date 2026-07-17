@@ -14,7 +14,7 @@ namespace TwoUp.EditorTools
         [MenuItem("2UP/Build Scenes/Home")]
         public static void Build()
         {
-            var scene = UiKit.NewScene();
+            var scene = UiKit.OpenOrCreateScene("Home");
             var screen = UiKit.CreateCanvasWithScreen("Screen_Home");
 
             var title = UiKit.CreateText(screen.transform, "Title", "2UP", 110, Color.white);
@@ -47,7 +47,7 @@ namespace TwoUp.EditorTools
             // Bottom nav row: Profile / Shop / Settings.
             var rowNav = UiKit.CreateUIObject("Row_Nav", screen.transform);
             UiKit.Place(rowNav, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 90), new Vector2(760, 100));
-            var hlg = rowNav.AddComponent<HorizontalLayoutGroup>();
+            var hlg = IdempotentBuildUtil.GetOrAddComponent<HorizontalLayoutGroup>(rowNav);
             hlg.spacing = 30;
             hlg.childAlignment = TextAnchor.MiddleCenter;
             hlg.childControlWidth = true;
@@ -87,7 +87,7 @@ namespace TwoUp.EditorTools
 
             var getCoinsPanel = GetCoinsPanelBuilder.Add(screen.transform);
 
-            var controller = screen.AddComponent<HomeController>();
+            var controller = IdempotentBuildUtil.GetOrAddComponent<HomeController>(screen);
             UiKit.SetRef(controller, "playWithFriendButton", playWithFriend);
             UiKit.SetRef(controller, "quickMatchButton", quickMatch);
             UiKit.SetRef(controller, "vsBotButton", vsBot);
