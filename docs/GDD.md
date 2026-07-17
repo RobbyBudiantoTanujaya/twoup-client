@@ -12,7 +12,7 @@ Scope dokumen: produk dan game design. Netcode, schema persis, API, dan algoritm
 **Core loop (3 kalimat):**
 1. Pemain mengajak teman via room code / deep link (utama) atau masuk queue (sekunder), dipasangkan, lalu berdua memilih game lewat voting.
 2. Main satu match pendek (~1-5 menit), hasil match menambah rivalry ledger (versus) atau duo score (co-op) untuk pasangan tersebut.
-3. Result screen mendorong rematch atau next game dengan pasangan yang sama; progres relasi (ledger, streak, duo level) adalah alasan kembali, kosmetik dari rewarded ads adalah reward loop sekunder.
+3. Result screen mendorong rematch atau next game dengan pasangan yang sama; progres relasi (ledger, streak, duo level) adalah alasan kembali, ekonomi coin (daily reward + login streak membiayai match berikutnya) dan kosmetik adalah reward loop sekunder.
 
 **Pilar desain:**
 - P1: Relasi antar pasangan pemain adalah progression, bukan level individual (D5)
@@ -29,18 +29,18 @@ Scope dokumen: produk dan game design. Netcode, schema persis, API, dan algoritm
 | # | Screen | Tujuan | Navigasi |
 |---|--------|--------|----------|
 | S1 | Splash/Boot | Logo, auth anonim device-based, load config | → S2 |
-| S2 | Home | Hub utama: tombol Play with Friend, Quick Match, vs Bot, badge Async Matches, akses Profile/Shop/Settings | → S3, S4, S5(vs Bot), S8, S9, S10, S11 |
+| S2 | Home | Hub utama: tombol Play with Friend, Quick Match, vs Bot, badge Async Matches, saldo coin, popup Daily Reward (claim login harian + streak), akses Profile/Shop/Settings | → S3, S4, S5(vs Bot), S8, S9, S10, S11 |
 | S3 | Invite/Room | Buat room (code 6 char + tombol share deep link ke WhatsApp/Line/dll), atau join via code. Menunggu lawan | kedua pemain hadir → S5 |
 | S4 | Queue/Pairing | Matchmaking single pool (D3). Timeout 10 detik → inject bot (D4) | paired → S5; cancel → S2 |
-| S5 | Game Voting/Picker | Pasangan memilih game (flow di Section 6.1). Juga dipakai sebagai picker mode vs Bot (pilih game + tier bot langsung) | locked → S6 |
+| S5 | Game Voting/Picker | Pasangan memilih game (flow di Section 6.1); tiap kartu game menampilkan biaya coin, kartu unaffordable disabled + shortcut "Get coins". Juga dipakai sebagai picker mode vs Bot (pilih game + tier bot langsung, gratis) | locked → S6 |
 | S6 | Gameplay Container | Host scene per game + HUD umum (skor, series counter, emote wheel, indikator koneksi) | match selesai → S7; disconnect → S7 (forfeit state) |
 | S7 | Result/Rematch Carousel | Hasil match, delta ledger/duo score, tombol Rematch / Next Game / Leave (flow di Section 6.2) | Rematch → S6; Next Game → S5; Leave/timeout → S2 |
 | S8 | Profile & Ledger | Avatar preset + frame, stat pribadi, daftar rivalry (per pasangan) dan duo score. Tap pasangan → detail head-to-head per game | → S2 |
-| S9 | Shop/Cosmetics | Katalog kosmetik, saldo ticket, tombol rewarded ad, IAP 2UP Premium | → S2 |
+| S9 | Shop/Cosmetics | Katalog kosmetik, saldo coin, tombol rewarded ad ("Get Coins"), IAP 2UP Premium | → S2 |
 | S10 | Settings | Sound/music toggle, vibration, restore purchase, privacy/ToS link, versi | → S2 |
 | S11 | Async Matches | Daftar match async berjalan (Connect Four, Battleship): giliran siapa, deadline, resume | tap match → S6 |
 
-Overlay (bukan screen): emote wheel (di S6), dialog konfirmasi leave, toast room expired.
+Overlay (bukan screen): emote wheel (di S6), dialog konfirmasi leave, toast room expired, popup Daily Reward (di S2), overlay "Get coins" (rewarded ad, dipanggil dari S5/S7/S9 saat saldo kurang).
 
 ---
 
@@ -55,33 +55,69 @@ Entity dan field penting saja. Tipe persis, index, dan relasi ada di TDD (constr
 | Rivalry ledger [MVP] | PairLedger | pair_id (unordered pair), game_id (+ baris agregat all-games), wins per sisi, draws, total_matches, streak_holder, streak_count, milestone tercapai, last_played_at. Lifetime (Section 5.1) |
 | Duo score [MVP] | PairDuoScore | pair_id, game_id, best_score, total_coop_matches (agregat untuk duo level), last_played_at. Lifetime |
 | Async turn [MVP] | AsyncMatchState | match_id, current_turn_player_id, turn_deadline, board_state ref (detail TDD) |
-| Cosmetics [MVP] | CosmeticItem (static), PlayerInventory | item_id, type (frame/emote_pack/board_skin/victory_anim), price_tickets, premium_exclusive flag; inventory: player_id, item_id, source (ad_ticket/premium/default) |
-| Ticket wallet [MVP] | TicketWallet | player_id, balance, daily_ad_count, last_ad_at |
+| Cosmetics [MVP] | CosmeticItem (static), PlayerInventory | item_id, type (frame/emote_pack/board_skin/victory_anim), price_coins, premium_exclusive flag; inventory: player_id, item_id, source (coin/premium/default) |
+| Coin wallet [MVP] | CoinWallet | player_id, balance, streak_count, last_claim_date, daily_ad_count, last_ad_at |
 | Bot roster [MVP] | BotProfile (static config) | bot_id, name, tier, avatar_id, per-game availability (Section 5.2) |
 | Room/Invite [MVP] | Room | room_code, creator_id, reserved_for (dari deep link claim), state, expires_at (Section 6.3) |
 | Push notification [MVP] | (service, bukan entity) | 2 tipe saja di MVP: `your_turn` (async) dan `invitee_joined` (room). Tipe lain [Post-MVP] |
 
 ---
 
-## 4. Monetisasi (locked, Section 4 research)
+## 4. Ekonomi coin & monetisasi (v1.2; constraint locked research tetap berlaku: tanpa pay-to-win, tanpa interstitial/banner)
 
-- **Rewarded ads** [MVP]: 1 ad = 1 ticket. Cap 5 ad/hari. Placement: hanya tombol eksplisit di S9 dan shortcut "Get ticket" saat pemain membuka item terkunci. Tidak ada rewarded di tengah flow match.
-- **Tanpa interstitial, tanpa banner** [locked]. Tanpa pay-to-win apa pun; semua item kosmetik murni.
-- **IAP tunggal** [MVP]: SKU `premium_unlock`, "2UP Premium", one-time $2.99 (harga final cek per region saat setup Play Console). Benefit: semua item ticket bisa di-claim tanpa ads (tombol claim langsung), plus frame eksklusif Golden Crown. Bukan unlock-all instan; pemain tetap claim per item (menjaga sense of collection).
-- Virtual economy/gifting: [Post-MVP], park sampai traction.
+Currency tunggal: **coin** (menggantikan ticket v1). Coin dipakai untuk (a) biaya main per match online dan (b) beli kosmetik. Analogi: arcade Timezone — tiap game punya harga sendiri sesuai durasi/bobot sesinya.
 
-**Katalog kosmetik MVP (objek rewarded ads, jawaban TODO #5 research):**
+### 4.1 Biaya main per game [MVP]
 
-| Item | Tipe | Harga ticket | Catatan |
-|------|------|-------------|---------|
-| 8 avatar frame | frame | 3 | 1 default gratis; Golden Crown khusus Premium |
-| 4 emote pack (@4 emote) | emote_pack | 5 | 6 emote dasar gratis: 👍 😂 😮 😭 🔥 GG |
-| Board skin Connect Four (2 varian) | board_skin | 4 | |
-| Table skin Air Hockey (2 varian) | board_skin | 4 | |
-| Grid skin Battleship (1 varian) | board_skin | 4 | |
-| 2 victory animation | victory_anim | 6 | Dipakai di S7 saat menang versus |
+| Game | Durasi tipikal | Biaya main (coin) |
+|------|---------------|-------------------|
+| Reflex Duel | ~1-1.5 menit | 1 |
+| Keep-Up Duo | ~1-2 menit | 1 |
+| Air Hockey | ~2-3 menit | 2 |
+| Wall Defense | ~2-4 menit | 2 |
+| Connect Four | ~3-5 menit (live) | 2 |
+| Battleship | terpanjang (async multi-hari) | 3 |
 
-Total 19 item unlockable + default. Cukup untuk ~3 bulan reward loop dengan cap 5 ticket/hari.
+Angka harga adalah nilai awal, tunable di fase balancing (remote config, lihat TDD).
+
+Aturan penarikan:
+- Biaya ditarik dari **masing-masing pemain** (kedua sisi bayar harga yang sama) saat match benar-benar mulai (masuk IN_GAME). Batal sebelum itu (lawan keluar saat voting/countdown) → tidak ada penarikan.
+- **Rematch = match baru = bayar lagi.** Next Game = bayar harga game yang terpilih di voting berikutnya.
+- **vs Bot / Co-op with Bot: GRATIS** — practice mode sekaligus safety net saat coin habis (pemain tidak pernah terkunci total dari gameplay).
+- Game async (Connect Four async, Battleship): biaya ditarik **sekali saat match mulai**, bukan per giliran.
+- Disconnect/forfeit di tengah match → tidak ada refund (match sudah dimainkan).
+- Pemain baru mendapat **starting balance 20 coin** saat first launch (cukup ~10 match untuk onboarding).
+
+### 4.2 Daily reward & login streak [MVP]
+
+- Login pertama tiap hari (reset harian 00:00 waktu server) → popup Daily Reward di S2, claim 1 tap.
+- Login berturut-turut menaikkan reward (streak): Hari 1 = 5, H2 = 6, H3 = 7, H4 = 8, H5 = 10, H6 = 12, H7+ = 15 coin/hari. Setelah hari ke-7, reward bertahan di 15/hari selama streak terjaga.
+- Bolong 1 hari → streak reset ke Hari 1. Streak protection/freeze = [Post-MVP].
+- Full streak 1 minggu = 63 coin ≈ 21-63 match tergantung game — daily reward adalah sumber coin utama; pemain yang login tiap hari praktis selalu bisa main.
+
+### 4.3 Rewarded ads [MVP]
+
+- 1 ad = **3 coin**. Cap 5 ad/hari (maksimal 15 coin/hari dari ads).
+- Placement: tombol eksplisit "Get Coins" di S9, plus shortcut overlay "Get coins" saat saldo tidak cukup (kartu game unaffordable di S5, tombol Rematch/Next Game di S7, item terkunci di S9). Tetap tidak ada rewarded di tengah flow match.
+
+### 4.4 IAP [MVP]
+
+- **IAP tunggal** (tidak berubah): SKU `premium_unlock`, "2UP Premium", one-time $2.99 (harga final cek per region saat setup Play Console). Benefit: semua item kosmetik bisa di-claim langsung tanpa coin, plus frame eksklusif Golden Crown. Bukan unlock-all instan; pemain tetap claim per item (menjaga sense of collection).
+- Premium **tidak menghapus biaya main** — biaya main tetap berlaku untuk semua pemain (menjaga ekonomi coin tetap berarti; benefit premium murni kosmetik, konsisten tanpa pay-to-win).
+- IAP coin pack: tidak ada di MVP. Virtual economy/gifting: [Post-MVP], park sampai traction.
+
+### 4.5 Katalog kosmetik MVP (harga di-reprice ke coin)
+
+| Item | Tipe | Harga coin | Catatan |
+|------|------|-----------|---------|
+| 8 avatar frame | frame | 30 | 1 default gratis; Golden Crown khusus Premium |
+| 4 emote pack (@4 emote) | emote_pack | 50 | 6 emote dasar gratis: 👍 😂 😮 😭 🔥 GG |
+| Board skin Connect Four (2 varian) | board_skin | 40 | |
+| Table skin Air Hockey (2 varian) | board_skin | 40 | |
+| Grid skin Battleship (1 varian) | board_skin | 40 | |
+| 2 victory animation | victory_anim | 60 | Dipakai di S7 saat menang versus |
+
+Total 19 item unlockable + default (tidak berubah). Dengan income maksimal ~30 coin/hari (daily streak penuh + 5 ads) dikurangi biaya main, pace unlock tetap di kisaran ~3 bulan reward loop; angka reprice final divalidasi di fase balancing.
 
 ---
 
@@ -127,7 +163,8 @@ Semua bot tampil dengan nama personality + badge "AI" kecil, tidak pernah menyam
 
 State: `PAIRED → VOTING → (LOCKED | SHOWDOWN) → COUNTDOWN → IN_GAME`.
 
-1. **VOTING (15 detik):** kedua pemain melihat grid 6 game (kartu: ikon, nama, tag Versus/Co-op, tag Live/Turn-based). Masing-masing tap satu. Pilihan sendiri tersorot, pilihan lawan tampil real-time.
+1. **VOTING (15 detik):** kedua pemain melihat grid 6 game (kartu: ikon, nama, tag Versus/Co-op, tag Live/Turn-based, **harga coin**). Masing-masing tap satu. Pilihan sendiri tersorot, pilihan lawan tampil real-time.
+   - Kartu dengan harga > saldo pemain tampil disabled + shortcut "Get coins" (overlay rewarded ad). Vote hanya bisa ke game yang mampu dibayar. Coin flip (rule 3) dan random server (rule 5) hanya memilih di antara game yang **kedua** pemain mampu bayar; jika irisan kosong → fallback ke game termurah yang kedua pemain mampu, dan jika tetap tidak ada, pairing dibatalkan dengan toast "Not enough coins" + CTA Get coins / vs Bot.
 2. Kedua pilih sama → **LOCKED** → countdown 3 detik → masuk game.
 3. Pilihan beda setelah keduanya vote → **SHOWDOWN (10 detik):** kedua kartu tersorot berdampingan, copy: "Pick one to agree, or we'll flip a coin!". Salah satu tap kartu lawan → LOCKED. Timeout → server random di antara dua pilihan (animasi coin flip).
 4. Satu pemain tidak vote sampai 15 detik → pilihan pemain yang vote otomatis LOCKED.
@@ -141,7 +178,7 @@ UX copy kunci: header VOTING "Pick your game!", subheader "Both agree = instant 
 State di S7: `RESULT_SHOWN → DECIDING (20 detik) → (REMATCH | NEXT_GAME | DISSOLVED)`.
 
 1. Result menampilkan: hasil match, delta ledger ("You 7 : 5 Rina, streak +1") atau duo score, series counter jika sedang series ("Series 2 : 1").
-2. Tiga tombol: **Rematch** (game sama, series counter lanjut), **Next Game** (kembali S5 voting dengan pasangan sama, series counter reset), **Leave**.
+2. Tiga tombol: **Rematch** (game sama, series counter lanjut; tombol menampilkan harga coin game, menarik biaya lagi dari kedua pemain), **Next Game** (kembali S5 voting dengan pasangan sama, series counter reset; biaya mengikuti game terpilih berikutnya), **Leave**. Saldo tidak cukup untuk Rematch → tombol disabled + shortcut "Get coins".
 3. Status pilihan lawan tampil real-time: "Rina wants a rematch!".
 4. Kedua Rematch → langsung countdown → game sama. Kedua Next Game, atau satu Rematch satu Next Game → S5 voting (Next Game menang karena voting bisa menghasilkan game sama juga). Ada Leave atau timeout 20 detik tanpa keputusan → pair dissolved: sisi yang tinggal dapat toast "Rina left. GG!" + CTA "Find new match" / "Invite a friend" / "Home".
 5. Best-of series: tidak ada format formal best-of-N di MVP; series counter bebas berjalan selama rematch beruntun game yang sama, reset saat ganti gamehead. Format best-of-3 formal dengan stake = [Post-MVP].
@@ -249,7 +286,7 @@ Pola terbukti GamePigeon (D1).
 
 ## 8. Scope MVP vs Post-MVP (ringkasan)
 
-**MVP (launch / closed testing):** 6 game Section 7 dengan AC [SKEL]+[MVP], 11 screen Section 2, voting + rematch carousel + invite flow Section 6, rivalry ledger + duo score + bot roster Section 5, monetisasi Section 4, 2 tipe push notif, English-only, Android-only, single region server (D7, detail infra di TDD).
+**MVP (launch / closed testing):** 6 game Section 7 dengan AC [SKEL]+[MVP], 11 screen Section 2, voting + rematch carousel + invite flow Section 6, rivalry ledger + duo score + bot roster Section 5, ekonomi coin (biaya main per game + daily reward/login streak + rewarded ads) + monetisasi Section 4, 2 tipe push notif, English-only, Android-only, single region server (D7, detail infra di TDD).
 
 **Post-MVP eksplisit (tidak dikerjakan sekarang):** Head Soccer-like (kandidat game #7), season overlay ranking, best-of-N formal, friends list persisten, web receiver, 3-4 pemain (UI/matchmaking; data layer sudah siap per D8), iOS, localization, leaderboard global, virtual economy/gifting, spectate, account linking, semua item [Post-MVP] di Section 7.
 
@@ -265,9 +302,10 @@ Netcode & sinkronisasi (tick rate, interpolasi, latency compensation Reflex Duel
 
 - Fase design: domain landing page final + visual landing page; kontrol final Keep-Up Duo (paddle vs area sentuh). Orientasi kamera Wall Defense **sudah diputuskan** di TDD.md §4.7 (kedua device render identik, gawang bersama di bawah, tanpa mirroring per seat).
 - Fase setup: cek ketersediaan nama "2UP" di Play Store + trademark kasar (TODO research masih terbuka); harga regional SKU premium. Package name **sudah diputuskan**: `com.evermore.twoup` (lihat TDD.md §8).
-- Fase TDD/balancing: kurva kecepatan Wall Defense & Keep-Up Duo, parameter bot per tier, toleransi interpolasi Air Hockey.
+- Fase TDD/balancing: kurva kecepatan Wall Defense & Keep-Up Duo, parameter bot per tier, toleransi interpolasi Air Hockey; validasi angka ekonomi coin (harga main per game §4.1, kurva daily reward §4.2, konversi ad §4.3, reprice kosmetik §4.5) — idealnya via remote config supaya tunable tanpa release.
 
 ## Changelog
 
 - v1 2026-07-15: initial, dari research-summary.md revisi final (D1-D9 locked). Memutuskan: rivalry ledger & duo score lifetime + milestone/duo level, roster 6 bot 3 tier, flow voting/rematch/invite lengkap, landing page copy + TTL 30 menit/join window 5 menit, katalog kosmetik 19 item + model ticket.
 - v1.1 2026-07-15: Section 10 diperbarui — package name Android diputuskan `com.evermore.twoup`, dipisah dari TODO nama/trademark "2UP" yang masih terbuka. Orientasi kamera Wall Defense dipindah dari titipan fase design ke "sudah diputuskan" (TDD.md §4.7: render identik di kedua device, tanpa mirroring per seat).
+- v1.2 2026-07-17: **Ekonomi ticket → coin** (Section 4 ditulis ulang). Keputusan: (1) tiap game punya biaya main coin berbeda sesuai durasi (ala arcade Timezone, tabel §4.1); (2) biaya berlaku untuk semua match online termasuk rematch, **vs Bot gratis** (practice + safety net); (3) daily reward + login streak sebagai sumber coin utama (§4.2, H1=5 naik sampai H7+=15/hari, bolong = reset); (4) rewarded ads tetap, dikonversi 1 ad = 3 coin cap 5/hari (§4.3); (5) kosmetik di-reprice ke coin (§4.5), Premium tidak berubah dan tidak menghapus biaya main; (6) starting balance 20 coin. Turut diubah: screen map S2/S5/S9 + overlay, entity CoinWallet (ganti TicketWallet), flow voting §6.1 (affordability rule) dan rematch §6.2 (harga di tombol). Belum dicascade ke TDD/proto (lihat catatan implementasi).
