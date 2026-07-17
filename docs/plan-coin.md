@@ -132,7 +132,7 @@ Gate audit, TANPA fitur baru. Depends on: keempat task retrofit scene (Home/Voti
 **Acceptance criteria:**
 - EditMode batchmode FULL pass termasuk `EconomyGateTests.AllRetrofitScenes_NoMissingScripts`.
 - Semua grep poin 3 terpenuhi.
-- Rebuild scene idempotent (menjalankan build dua kali → `git status` bersih setelah run kedua).
+- Rebuild scene idempotent secara SEMANTIK (bukan `git status` bersih — Unity me-renumber fileID lokal tiap save Editor terpisah meski GameObject/component set identik, jadi raw diff TIDAK valid sebagai kriteria). Kriterianya: `SkeletonBuilderIdempotencyTests.BuildAll_IsSemanticallyIdempotent` (`Assets/Tests/EditMode/SkeletonBuilderIdempotencyTests.cs`) hijau di EditMode batchmode — test ini membandingkan hierarki nama + set tipe component per scene sebelum/sesudah BuildAll() dijalankan ulang, mengabaikan fileID/GUID.
 
 ---
 
