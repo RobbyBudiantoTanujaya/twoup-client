@@ -24,7 +24,7 @@ namespace Twoup.V1 {
     static TwoupReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cgt0d291cC5wcm90bxIIdHdvdXAudjEinhEKCEVudmVsb3BlEi0KDGNsaWVu",
+            "Cgt0d291cC5wcm90bxIIdHdvdXAudjEiyRIKCEVudmVsb3BlEi0KDGNsaWVu",
             "dF9oZWxsbxgBIAEoCzIVLnR3b3VwLnYxLkNsaWVudEhlbGxvSAASLQoMc2Vy",
             "dmVyX2hlbGxvGAIgASgLMhUudHdvdXAudjEuU2VydmVySGVsbG9IABIpCgpq",
             "b2luX3F1ZXVlGAogASgLMhMudHdvdXAudjEuSm9pblF1ZXVlSAASKwoLbGVh",
@@ -73,128 +73,143 @@ namespace Twoup.V1 {
             "ZmlsZRhjIAEoCzIULnR3b3VwLnYxLlNldFByb2ZpbGVIABI6ChNyZWdpc3Rl",
             "cl9wdXNoX3Rva2VuGGQgASgLMhsudHdvdXAudjEuUmVnaXN0ZXJQdXNoVG9r",
             "ZW5IABI3ChFwcmVtaXVtX3B1cmNoYXNlZBhlIAEoCzIaLnR3b3VwLnYxLlBy",
-            "ZW1pdW1QdXJjaGFzZWRIAEIJCgdwYXlsb2FkIjYKC0NsaWVudEhlbGxvEhEK",
-            "CWRldmljZV9pZBgBIAEoCRIUCgxkaXNwbGF5X25hbWUYAiABKAkiIAoLU2Vy",
-            "dmVySGVsbG8SEQoJcGxheWVyX2lkGAEgASgJIgsKCUpvaW5RdWV1ZSIMCgpM",
-            "ZWF2ZVF1ZXVlIgwKCkNyZWF0ZVJvb20iHQoISm9pblJvb20SEQoJcm9vbV9j",
-            "b2RlGAEgASgJIjwKC1Jvb21DcmVhdGVkEhEKCXJvb21fY29kZRgBIAEoCRIa",
-            "ChJleHBpcmVzX2F0X3VuaXhfbXMYAiABKAMiZAoKUGxheWVySW5mbxIRCglw",
-            "bGF5ZXJfaWQYASABKAkSFAoMZGlzcGxheV9uYW1lGAIgASgJEg8KB3RlYW1f",
-            "aWQYAyABKAUSDAoEc2VhdBgEIAEoBRIOCgZpc19ib3QYBSABKAgiVgoKTWF0",
-            "Y2hGb3VuZBIQCghtYXRjaF9pZBgBIAEoCRIlCgdwbGF5ZXJzGAIgAygLMhQu",
-            "dHdvdXAudjEuUGxheWVySW5mbxIPCgdnYW1lX2lkGAMgASgJIjQKCUdhbWVT",
-            "dGFydBIQCghtYXRjaF9pZBgBIAEoCRIVCg1pbml0aWFsX3N0YXRlGAIgASgM",
-            "IiwKCUdhbWVJbnB1dBIQCghtYXRjaF9pZBgBIAEoCRINCgVpbnB1dBgCIAEo",
-            "DCIsCglHYW1lU3RhdGUSEAoIbWF0Y2hfaWQYASABKAkSDQoFc3RhdGUYAiAB",
-            "KAwiYgoKR2FtZVJlc3VsdBIZChF3aW5uZXJfcGxheWVyX2lkcxgBIAMoCRIM",
-            "CgRkcmF3GAIgASgIEhMKC2NvX29wX3Njb3JlGAMgASgFEhYKDmNvX29wX25l",
-            "d19iZXN0GAQgASgIIkIKCEdhbWVPdmVyEhAKCG1hdGNoX2lkGAEgASgJEiQK",
-            "BnJlc3VsdBgCIAEoCzIULnR3b3VwLnYxLkdhbWVSZXN1bHQiWwoOUmVtYXRj",
-            "aFJlcXVlc3QSEAoIbWF0Y2hfaWQYASABKAkSDgoGYWNjZXB0GAIgASgIEicK",
-            "BmNob2ljZRgDIAEoDjIXLnR3b3VwLnYxLlJlbWF0Y2hDaG9pY2UiEgoEUGlu",
-            "ZxIKCgJ0cxgBIAEoAyISCgRQb25nEgoKAnRzGAEgASgDIiYKBUVycm9yEgwK",
-            "BGNvZGUYASABKAkSDwoHbWVzc2FnZRgCIAEoCSIiChBDb25uZWN0Rm91cklu",
-            "cHV0Eg4KBmNvbHVtbhgBIAEoBSI5ChBDb25uZWN0Rm91clN0YXRlEg0KBWNl",
-            "bGxzGAEgAygFEhYKDm5leHRfcGxheWVyX2lkGAIgASgJIi4KDVN0YXJ0Qm90",
-            "TWF0Y2gSDwoHZ2FtZV9pZBgBIAEoCRIMCgR0aWVyGAIgASgJIjMKDk1hdGNo",
-            "V2VudEFzeW5jEhAKCG1hdGNoX2lkGAEgASgJEg8KB2dhbWVfaWQYAiABKAki",
-            "hQEKCVBhaXJGb3VuZBIPCgdwYWlyX2lkGAEgASgJEiUKB3BsYXllcnMYAiAD",
-            "KAsyFC50d291cC52MS5QbGF5ZXJJbmZvEhYKDm1pbGVzdG9uZV90aWVyGAMg",
-            "ASgJEhEKCWR1b19sZXZlbBgEIAEoBRIVCg10b3RhbF9tYXRjaGVzGAUgASgF",
-            "IiwKCFZvdGVHYW1lEg8KB3BhaXJfaWQYASABKAkSDwoHZ2FtZV9pZBgCIAEo",
-            "CSKcAQoKVm90ZVVwZGF0ZRIPCgdwYWlyX2lkGAEgASgJEkUKEnZvdGVzX2J5",
-            "X3BsYXllcl9pZBgCIAMoCzIpLnR3b3VwLnYxLlZvdGVVcGRhdGUuVm90ZXNC",
-            "eVBsYXllcklkRW50cnkaNgoUVm90ZXNCeVBsYXllcklkRW50cnkSCwoDa2V5",
-            "GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJGCgxWb3RpbmdMb2NrZWQSDwoH",
-            "cGFpcl9pZBgBIAEoCRIPCgdnYW1lX2lkGAIgASgJEhQKDGNvdW50ZG93bl9t",
-            "cxgDIAEoBSJXCg5Wb3RpbmdTaG93ZG93bhIPCgdwYWlyX2lkGAEgASgJEhoK",
-            "EmNhbmRpZGF0ZV9nYW1lX2lkcxgCIAMoCRIYChBkZWFkbGluZV91bml4X21z",
-            "GAMgASgDIjAKDFNob3dkb3duUGljaxIPCgdwYWlyX2lkGAEgASgJEg8KB2dh",
-            "bWVfaWQYAiABKAkiMgoPVm90aW5nQ2FuY2VsbGVkEg8KB3BhaXJfaWQYASAB",
-            "KAkSDgoGcmVhc29uGAIgASgJImMKE1JlbWF0Y2hTdGF0dXNVcGRhdGUSEAoI",
-            "bWF0Y2hfaWQYASABKAkSEQoJcGxheWVyX2lkGAIgASgJEicKBmNob2ljZRgD",
-            "IAEoDjIXLnR3b3VwLnYxLlJlbWF0Y2hDaG9pY2UiEgoQTGlzdEFzeW5jTWF0",
-            "Y2hlcyKmAQoRQXN5bmNNYXRjaFN1bW1hcnkSEAoIbWF0Y2hfaWQYASABKAkS",
-            "DwoHZ2FtZV9pZBgCIAEoCRIaChJvcHBvbmVudF9wbGF5ZXJfaWQYAyABKAkS",
-            "HQoVb3Bwb25lbnRfZGlzcGxheV9uYW1lGAQgASgJEhEKCXlvdXJfdHVybhgF",
-            "IAEoCBIgChhmb3JmZWl0X2RlYWRsaW5lX3VuaXhfbXMYBiABKAMiPgoOQXN5",
-            "bmNNYXRjaExpc3QSLAoHbWF0Y2hlcxgBIAMoCzIbLnR3b3VwLnYxLkFzeW5j",
-            "TWF0Y2hTdW1tYXJ5IiQKEFJlc3VtZUFzeW5jTWF0Y2gSEAoIbWF0Y2hfaWQY",
-            "ASABKAkiYQoMTWF0Y2hSZXN1bWVkEhAKCG1hdGNoX2lkGAEgASgJEg8KB2dh",
-            "bWVfaWQYAiABKAkSDQoFc3RhdGUYAyABKAwSHwoXZ3JhY2Vfc2Vjb25kc19y",
-            "ZW1haW5pbmcYBCABKAUiQgoPUm9vbUpvaW5QZW5kaW5nEhEKCXJvb21fY29k",
-            "ZRgBIAEoCRIcChRpbnZpdGVlX2Rpc3BsYXlfbmFtZRgCIAEoCSIgCgtSb29t",
-            "RXhwaXJlZBIRCglyb29tX2NvZGUYASABKAkiLwoJRW1vdGVTZW5kEhAKCG1h",
-            "dGNoX2lkGAEgASgJEhAKCGVtb3RlX2lkGAIgASgJIkcKDkVtb3RlQnJvYWRj",
-            "YXN0EhAKCG1hdGNoX2lkGAEgASgJEhEKCXBsYXllcl9pZBgCIAEoCRIQCghl",
-            "bW90ZV9pZBgDIAEoCSIRCg9SZWZsZXhEdWVsSW5wdXQiugIKD1JlZmxleER1",
-            "ZWxTdGF0ZRIpCgVwaGFzZRgBIAEoDjIaLnR3b3VwLnYxLlJlZmxleFJvdW5k",
-            "UGhhc2USEwoLcm91bmRfaW5kZXgYAiABKAUSEwoLc2NvcmVfc2VhdDAYAyAB",
-            "KAUSEwoLc2NvcmVfc2VhdDEYBCABKAUSFwoPZ29fc2VydmVyX3RzX21zGAUg",
-            "ASgDEh4KFmxhc3Rfcm91bmRfd2lubmVyX3NlYXQYBiABKAUSGwoTbGFzdF9y",
-            "b3VuZF9tc19zZWF0MBgHIAEoBRIbChNsYXN0X3JvdW5kX21zX3NlYXQxGAgg",
-            "ASgFEiQKHGxhc3Rfcm91bmRfZmFsc2Vfc3RhcnRfc2VhdDAYCSABKAgSJAoc",
-            "bGFzdF9yb3VuZF9mYWxzZV9zdGFydF9zZWF0MRgKIAEoCCI0Cg5BaXJIb2Nr",
-            "ZXlJbnB1dBIQCghtYWxsZXRfeBgBIAEoAhIQCghtYWxsZXRfeRgCIAEoAiKN",
-            "AgoOQWlySG9ja2V5U3RhdGUSDgoGcHVja194GAEgASgCEg4KBnB1Y2tfeRgC",
-            "IAEoAhIPCgdwdWNrX3Z4GAMgASgCEg8KB3B1Y2tfdnkYBCABKAISFgoObWFs",
-            "bGV0X3NlYXQwX3gYBSABKAISFgoObWFsbGV0X3NlYXQwX3kYBiABKAISFgoO",
-            "bWFsbGV0X3NlYXQxX3gYByABKAISFgoObWFsbGV0X3NlYXQxX3kYCCABKAIS",
-            "EwoLc2NvcmVfc2VhdDAYCSABKAUSEwoLc2NvcmVfc2VhdDEYCiABKAUSGQoR",
-            "dGltZV9yZW1haW5pbmdfbXMYCyABKAUSFAoMc3VkZGVuX2RlYXRoGAwgASgI",
-            "IiQKEFdhbGxEZWZlbnNlSW5wdXQSEAoIcGFkZGxlX3gYASABKAIiSwoGV0RC",
-            "YWxsEgkKAXgYASABKAISCQoBeRgCIAEoAhIKCgJ2eBgDIAEoAhIKCgJ2eRgE",
-            "IAEoAhITCgt0YXJnZXRfc2VhdBgFIAEoBSKoAQoQV2FsbERlZmVuc2VTdGF0",
-            "ZRIWCg5wYWRkbGVfc2VhdDBfeBgBIAEoAhIWCg5wYWRkbGVfc2VhdDFfeBgC",
-            "IAEoAhIfCgViYWxscxgDIAMoCzIQLnR3b3VwLnYxLldEQmFsbBINCgVsaXZl",
-            "cxgEIAEoBRIMCgR3YXZlGAUgASgFEg0KBXNjb3JlGAYgASgFEhcKD3dhdmVf",
-            "dHJhbnNpdGlvbhgHIAEoCCIiCg5LZWVwVXBEdW9JbnB1dBIQCghwYWRkbGVf",
-            "eBgBIAEoAiK/AQoOS2VlcFVwRHVvU3RhdGUSDgoGYmFsbF94GAEgASgCEg4K",
-            "BmJhbGxfeRgCIAEoAhIPCgdiYWxsX3Z4GAMgASgCEg8KB2JhbGxfdnkYBCAB",
-            "KAISFgoOcGFkZGxlX3NlYXQwX3gYBSABKAISFgoOcGFkZGxlX3NlYXQxX3gY",
-            "BiABKAISDQoFc2NvcmUYByABKAUSGQoRbGFzdF90b3VjaGVyX3NlYXQYCCAB",
-            "KAUSEQoJZ2FtZV9vdmVyGAkgASgIIk0KDVNoaXBQbGFjZW1lbnQSDgoGbGVu",
-            "Z3RoGAEgASgFEgsKA3JvdxgCIAEoBRILCgNjb2wYAyABKAUSEgoKaG9yaXpv",
-            "bnRhbBgEIAEoCCI+ChRCYXR0bGVzaGlwUGxhY2VJbnB1dBImCgVzaGlwcxgB",
-            "IAMoCzIXLnR3b3VwLnYxLlNoaXBQbGFjZW1lbnQiLwoTQmF0dGxlc2hpcEZp",
-            "cmVJbnB1dBILCgNyb3cYASABKAUSCwoDY29sGAIgASgFIvsBCg9CYXR0bGVz",
-            "aGlwU3RhdGUSKAoFcGhhc2UYASABKA4yGS50d291cC52MS5CYXR0bGVzaGlw",
-            "UGhhc2USGwoTbXlfcGxhY2VtZW50X2xvY2tlZBgCIAEoCBIhChlvcHBvbmVu",
-            "dF9wbGFjZW1lbnRfbG9ja2VkGAMgASgIEhcKD215X3Nob3RzX3Jlc3VsdBgE",
-            "IAMoBRIYChBzaG90c19hZ2FpbnN0X21lGAUgAygFEhAKCG15X2ZsZWV0GAYg",
-            "AygFEhYKDm5leHRfcGxheWVyX2lkGAcgASgJEiEKGW15X3NoaXBzX3N1bmtf",
-            "Ynlfb3Bwb25lbnQYCCADKAkiDAoKR2V0UHJvZmlsZSLEAQoLUHJvZmlsZURh",
-            "dGESIAoCbWUYASABKAsyFC50d291cC52MS5QbGF5ZXJJbmZvEhEKCWF2YXRh",
-            "cl9pZBgCIAEoCRIQCghmcmFtZV9pZBgDIAEoCRIPCgdwcmVtaXVtGAQgASgI",
-            "EhAKCGJvdF93aW5zGAUgASgFEhIKCmJvdF9sb3NzZXMYBiABKAUSEQoJYm90",
-            "X2RyYXdzGAcgASgFEiQKBXBhaXJzGAggAygLMhUudHdvdXAudjEuUGFpclN1",
-            "bW1hcnki9AEKC1BhaXJTdW1tYXJ5EhcKD290aGVyX3BsYXllcl9pZBgBIAEo",
-            "CRIaChJvdGhlcl9kaXNwbGF5X25hbWUYAiABKAkSFwoPb3RoZXJfYXZhdGFy",
-            "X2lkGAMgASgJEhEKCXdpbnNfbWluZRgEIAEoBRITCgt3aW5zX3RoZWlycxgF",
-            "IAEoBRINCgVkcmF3cxgGIAEoBRIVCg10b3RhbF9tYXRjaGVzGAcgASgFEhYK",
-            "Dm1pbGVzdG9uZV90aWVyGAggASgJEhEKCWR1b19sZXZlbBgJIAEoBRIeChZs",
-            "YXN0X3BsYXllZF9hdF91bml4X21zGAogASgDIigKDUdldFBhaXJEZXRhaWwS",
-            "FwoPb3RoZXJfcGxheWVyX2lkGAEgASgJIsQBCgpQYWlyRGV0YWlsEiYKB3N1",
-            "bW1hcnkYASABKAsyFS50d291cC52MS5QYWlyU3VtbWFyeRIsCgx2ZXJzdXNf",
-            "bGluZXMYAiADKAsyFi50d291cC52MS5QYWlyR2FtZUxpbmUSKQoKY29vcF9s",
-            "aW5lcxgDIAMoCzIVLnR3b3VwLnYxLkR1b0dhbWVMaW5lEh8KF3N0cmVha19o",
-            "b2xkZXJfcGxheWVyX2lkGAQgASgJEhQKDHN0cmVha19jb3VudBgFIAEoBSJW",
-            "CgxQYWlyR2FtZUxpbmUSDwoHZ2FtZV9pZBgBIAEoCRIRCgl3aW5zX21pbmUY",
-            "AiABKAUSEwoLd2luc190aGVpcnMYAyABKAUSDQoFZHJhd3MYBCABKAUiSQoL",
-            "RHVvR2FtZUxpbmUSDwoHZ2FtZV9pZBgBIAEoCRISCgpiZXN0X3Njb3JlGAIg",
-            "ASgFEhUKDXRvdGFsX21hdGNoZXMYAyABKAUiRwoKU2V0UHJvZmlsZRIUCgxk",
-            "aXNwbGF5X25hbWUYASABKAkSEQoJYXZhdGFyX2lkGAIgASgJEhAKCGZyYW1l",
-            "X2lkGAMgASgJIgkKB0dldFNob3AiawoIU2hvcEl0ZW0SEAoIaXRlbV9rZXkY",
-            "ASABKAkSDAoEdHlwZRgCIAEoCRIVCg1wcmljZV90aWNrZXRzGAMgASgFEhkK",
-            "EXByZW1pdW1fZXhjbHVzaXZlGAQgASgIEg0KBW93bmVkGAUgASgIInMKCFNo",
-            "b3BEYXRhEiEKBWl0ZW1zGAEgAygLMhIudHdvdXAudjEuU2hvcEl0ZW0SFgoO",
-            "dGlja2V0X2JhbGFuY2UYAiABKAUSGwoTYWRzX3JlbWFpbmluZ190b2RheRgD",
-            "IAEoBRIPCgdwcmVtaXVtGAQgASgIIg8KDUNsYWltQWRUaWNrZXQiIAoMUHVy",
-            "Y2hhc2VJdGVtEhAKCGl0ZW1fa2V5GAEgASgJIl4KDFdhbGxldFVwZGF0ZRIW",
-            "Cg50aWNrZXRfYmFsYW5jZRgBIAEoBRIbChNhZHNfcmVtYWluaW5nX3RvZGF5",
-            "GAIgASgFEhkKEXVubG9ja2VkX2l0ZW1fa2V5GAMgASgJIi8KEFByZW1pdW1Q",
-            "dXJjaGFzZWQSGwoTcGxheV9wdXJjaGFzZV90b2tlbhgBIAEoCSImChFSZWdp",
-            "c3RlclB1c2hUb2tlbhIRCglmY21fdG9rZW4YASABKAkqNQoNUmVtYXRjaENo",
+            "ZW1pdW1QdXJjaGFzZWRIABI4ChJjbGFpbV9kYWlseV9yZXdhcmQYZiABKAsy",
+            "Gi50d291cC52MS5DbGFpbURhaWx5UmV3YXJkSAASPAoUZGFpbHlfcmV3YXJk",
+            "X2NsYWltZWQYZyABKAsyHC50d291cC52MS5EYWlseVJld2FyZENsYWltZWRI",
+            "ABIxCg5lY29ub215X2NvbmZpZxhoIAEoCzIXLnR3b3VwLnYxLkVjb25vbXlD",
+            "b25maWdIAEIJCgdwYXlsb2FkIjYKC0NsaWVudEhlbGxvEhEKCWRldmljZV9p",
+            "ZBgBIAEoCRIUCgxkaXNwbGF5X25hbWUYAiABKAkiIAoLU2VydmVySGVsbG8S",
+            "EQoJcGxheWVyX2lkGAEgASgJIgsKCUpvaW5RdWV1ZSIMCgpMZWF2ZVF1ZXVl",
+            "IgwKCkNyZWF0ZVJvb20iHQoISm9pblJvb20SEQoJcm9vbV9jb2RlGAEgASgJ",
+            "IjwKC1Jvb21DcmVhdGVkEhEKCXJvb21fY29kZRgBIAEoCRIaChJleHBpcmVz",
+            "X2F0X3VuaXhfbXMYAiABKAMiZAoKUGxheWVySW5mbxIRCglwbGF5ZXJfaWQY",
+            "ASABKAkSFAoMZGlzcGxheV9uYW1lGAIgASgJEg8KB3RlYW1faWQYAyABKAUS",
+            "DAoEc2VhdBgEIAEoBRIOCgZpc19ib3QYBSABKAgiVgoKTWF0Y2hGb3VuZBIQ",
+            "CghtYXRjaF9pZBgBIAEoCRIlCgdwbGF5ZXJzGAIgAygLMhQudHdvdXAudjEu",
+            "UGxheWVySW5mbxIPCgdnYW1lX2lkGAMgASgJIjQKCUdhbWVTdGFydBIQCght",
+            "YXRjaF9pZBgBIAEoCRIVCg1pbml0aWFsX3N0YXRlGAIgASgMIiwKCUdhbWVJ",
+            "bnB1dBIQCghtYXRjaF9pZBgBIAEoCRINCgVpbnB1dBgCIAEoDCIsCglHYW1l",
+            "U3RhdGUSEAoIbWF0Y2hfaWQYASABKAkSDQoFc3RhdGUYAiABKAwiYgoKR2Ft",
+            "ZVJlc3VsdBIZChF3aW5uZXJfcGxheWVyX2lkcxgBIAMoCRIMCgRkcmF3GAIg",
+            "ASgIEhMKC2NvX29wX3Njb3JlGAMgASgFEhYKDmNvX29wX25ld19iZXN0GAQg",
+            "ASgIIkIKCEdhbWVPdmVyEhAKCG1hdGNoX2lkGAEgASgJEiQKBnJlc3VsdBgC",
+            "IAEoCzIULnR3b3VwLnYxLkdhbWVSZXN1bHQiWwoOUmVtYXRjaFJlcXVlc3QS",
+            "EAoIbWF0Y2hfaWQYASABKAkSDgoGYWNjZXB0GAIgASgIEicKBmNob2ljZRgD",
+            "IAEoDjIXLnR3b3VwLnYxLlJlbWF0Y2hDaG9pY2UiEgoEUGluZxIKCgJ0cxgB",
+            "IAEoAyISCgRQb25nEgoKAnRzGAEgASgDIiYKBUVycm9yEgwKBGNvZGUYASAB",
+            "KAkSDwoHbWVzc2FnZRgCIAEoCSIiChBDb25uZWN0Rm91cklucHV0Eg4KBmNv",
+            "bHVtbhgBIAEoBSI5ChBDb25uZWN0Rm91clN0YXRlEg0KBWNlbGxzGAEgAygF",
+            "EhYKDm5leHRfcGxheWVyX2lkGAIgASgJIi4KDVN0YXJ0Qm90TWF0Y2gSDwoH",
+            "Z2FtZV9pZBgBIAEoCRIMCgR0aWVyGAIgASgJIjMKDk1hdGNoV2VudEFzeW5j",
+            "EhAKCG1hdGNoX2lkGAEgASgJEg8KB2dhbWVfaWQYAiABKAkihQEKCVBhaXJG",
+            "b3VuZBIPCgdwYWlyX2lkGAEgASgJEiUKB3BsYXllcnMYAiADKAsyFC50d291",
+            "cC52MS5QbGF5ZXJJbmZvEhYKDm1pbGVzdG9uZV90aWVyGAMgASgJEhEKCWR1",
+            "b19sZXZlbBgEIAEoBRIVCg10b3RhbF9tYXRjaGVzGAUgASgFIiwKCFZvdGVH",
+            "YW1lEg8KB3BhaXJfaWQYASABKAkSDwoHZ2FtZV9pZBgCIAEoCSKcAQoKVm90",
+            "ZVVwZGF0ZRIPCgdwYWlyX2lkGAEgASgJEkUKEnZvdGVzX2J5X3BsYXllcl9p",
+            "ZBgCIAMoCzIpLnR3b3VwLnYxLlZvdGVVcGRhdGUuVm90ZXNCeVBsYXllcklk",
+            "RW50cnkaNgoUVm90ZXNCeVBsYXllcklkRW50cnkSCwoDa2V5GAEgASgJEg0K",
+            "BXZhbHVlGAIgASgJOgI4ASJGCgxWb3RpbmdMb2NrZWQSDwoHcGFpcl9pZBgB",
+            "IAEoCRIPCgdnYW1lX2lkGAIgASgJEhQKDGNvdW50ZG93bl9tcxgDIAEoBSJX",
+            "Cg5Wb3RpbmdTaG93ZG93bhIPCgdwYWlyX2lkGAEgASgJEhoKEmNhbmRpZGF0",
+            "ZV9nYW1lX2lkcxgCIAMoCRIYChBkZWFkbGluZV91bml4X21zGAMgASgDIjAK",
+            "DFNob3dkb3duUGljaxIPCgdwYWlyX2lkGAEgASgJEg8KB2dhbWVfaWQYAiAB",
+            "KAkiMgoPVm90aW5nQ2FuY2VsbGVkEg8KB3BhaXJfaWQYASABKAkSDgoGcmVh",
+            "c29uGAIgASgJImMKE1JlbWF0Y2hTdGF0dXNVcGRhdGUSEAoIbWF0Y2hfaWQY",
+            "ASABKAkSEQoJcGxheWVyX2lkGAIgASgJEicKBmNob2ljZRgDIAEoDjIXLnR3",
+            "b3VwLnYxLlJlbWF0Y2hDaG9pY2UiEgoQTGlzdEFzeW5jTWF0Y2hlcyKmAQoR",
+            "QXN5bmNNYXRjaFN1bW1hcnkSEAoIbWF0Y2hfaWQYASABKAkSDwoHZ2FtZV9p",
+            "ZBgCIAEoCRIaChJvcHBvbmVudF9wbGF5ZXJfaWQYAyABKAkSHQoVb3Bwb25l",
+            "bnRfZGlzcGxheV9uYW1lGAQgASgJEhEKCXlvdXJfdHVybhgFIAEoCBIgChhm",
+            "b3JmZWl0X2RlYWRsaW5lX3VuaXhfbXMYBiABKAMiPgoOQXN5bmNNYXRjaExp",
+            "c3QSLAoHbWF0Y2hlcxgBIAMoCzIbLnR3b3VwLnYxLkFzeW5jTWF0Y2hTdW1t",
+            "YXJ5IiQKEFJlc3VtZUFzeW5jTWF0Y2gSEAoIbWF0Y2hfaWQYASABKAkiYQoM",
+            "TWF0Y2hSZXN1bWVkEhAKCG1hdGNoX2lkGAEgASgJEg8KB2dhbWVfaWQYAiAB",
+            "KAkSDQoFc3RhdGUYAyABKAwSHwoXZ3JhY2Vfc2Vjb25kc19yZW1haW5pbmcY",
+            "BCABKAUiQgoPUm9vbUpvaW5QZW5kaW5nEhEKCXJvb21fY29kZRgBIAEoCRIc",
+            "ChRpbnZpdGVlX2Rpc3BsYXlfbmFtZRgCIAEoCSIgCgtSb29tRXhwaXJlZBIR",
+            "Cglyb29tX2NvZGUYASABKAkiLwoJRW1vdGVTZW5kEhAKCG1hdGNoX2lkGAEg",
+            "ASgJEhAKCGVtb3RlX2lkGAIgASgJIkcKDkVtb3RlQnJvYWRjYXN0EhAKCG1h",
+            "dGNoX2lkGAEgASgJEhEKCXBsYXllcl9pZBgCIAEoCRIQCghlbW90ZV9pZBgD",
+            "IAEoCSIRCg9SZWZsZXhEdWVsSW5wdXQiugIKD1JlZmxleER1ZWxTdGF0ZRIp",
+            "CgVwaGFzZRgBIAEoDjIaLnR3b3VwLnYxLlJlZmxleFJvdW5kUGhhc2USEwoL",
+            "cm91bmRfaW5kZXgYAiABKAUSEwoLc2NvcmVfc2VhdDAYAyABKAUSEwoLc2Nv",
+            "cmVfc2VhdDEYBCABKAUSFwoPZ29fc2VydmVyX3RzX21zGAUgASgDEh4KFmxh",
+            "c3Rfcm91bmRfd2lubmVyX3NlYXQYBiABKAUSGwoTbGFzdF9yb3VuZF9tc19z",
+            "ZWF0MBgHIAEoBRIbChNsYXN0X3JvdW5kX21zX3NlYXQxGAggASgFEiQKHGxh",
+            "c3Rfcm91bmRfZmFsc2Vfc3RhcnRfc2VhdDAYCSABKAgSJAocbGFzdF9yb3Vu",
+            "ZF9mYWxzZV9zdGFydF9zZWF0MRgKIAEoCCI0Cg5BaXJIb2NrZXlJbnB1dBIQ",
+            "CghtYWxsZXRfeBgBIAEoAhIQCghtYWxsZXRfeRgCIAEoAiKNAgoOQWlySG9j",
+            "a2V5U3RhdGUSDgoGcHVja194GAEgASgCEg4KBnB1Y2tfeRgCIAEoAhIPCgdw",
+            "dWNrX3Z4GAMgASgCEg8KB3B1Y2tfdnkYBCABKAISFgoObWFsbGV0X3NlYXQw",
+            "X3gYBSABKAISFgoObWFsbGV0X3NlYXQwX3kYBiABKAISFgoObWFsbGV0X3Nl",
+            "YXQxX3gYByABKAISFgoObWFsbGV0X3NlYXQxX3kYCCABKAISEwoLc2NvcmVf",
+            "c2VhdDAYCSABKAUSEwoLc2NvcmVfc2VhdDEYCiABKAUSGQoRdGltZV9yZW1h",
+            "aW5pbmdfbXMYCyABKAUSFAoMc3VkZGVuX2RlYXRoGAwgASgIIiQKEFdhbGxE",
+            "ZWZlbnNlSW5wdXQSEAoIcGFkZGxlX3gYASABKAIiSwoGV0RCYWxsEgkKAXgY",
+            "ASABKAISCQoBeRgCIAEoAhIKCgJ2eBgDIAEoAhIKCgJ2eRgEIAEoAhITCgt0",
+            "YXJnZXRfc2VhdBgFIAEoBSKoAQoQV2FsbERlZmVuc2VTdGF0ZRIWCg5wYWRk",
+            "bGVfc2VhdDBfeBgBIAEoAhIWCg5wYWRkbGVfc2VhdDFfeBgCIAEoAhIfCgVi",
+            "YWxscxgDIAMoCzIQLnR3b3VwLnYxLldEQmFsbBINCgVsaXZlcxgEIAEoBRIM",
+            "CgR3YXZlGAUgASgFEg0KBXNjb3JlGAYgASgFEhcKD3dhdmVfdHJhbnNpdGlv",
+            "bhgHIAEoCCIiCg5LZWVwVXBEdW9JbnB1dBIQCghwYWRkbGVfeBgBIAEoAiK/",
+            "AQoOS2VlcFVwRHVvU3RhdGUSDgoGYmFsbF94GAEgASgCEg4KBmJhbGxfeRgC",
+            "IAEoAhIPCgdiYWxsX3Z4GAMgASgCEg8KB2JhbGxfdnkYBCABKAISFgoOcGFk",
+            "ZGxlX3NlYXQwX3gYBSABKAISFgoOcGFkZGxlX3NlYXQxX3gYBiABKAISDQoF",
+            "c2NvcmUYByABKAUSGQoRbGFzdF90b3VjaGVyX3NlYXQYCCABKAUSEQoJZ2Ft",
+            "ZV9vdmVyGAkgASgIIk0KDVNoaXBQbGFjZW1lbnQSDgoGbGVuZ3RoGAEgASgF",
+            "EgsKA3JvdxgCIAEoBRILCgNjb2wYAyABKAUSEgoKaG9yaXpvbnRhbBgEIAEo",
+            "CCI+ChRCYXR0bGVzaGlwUGxhY2VJbnB1dBImCgVzaGlwcxgBIAMoCzIXLnR3",
+            "b3VwLnYxLlNoaXBQbGFjZW1lbnQiLwoTQmF0dGxlc2hpcEZpcmVJbnB1dBIL",
+            "CgNyb3cYASABKAUSCwoDY29sGAIgASgFIvsBCg9CYXR0bGVzaGlwU3RhdGUS",
+            "KAoFcGhhc2UYASABKA4yGS50d291cC52MS5CYXR0bGVzaGlwUGhhc2USGwoT",
+            "bXlfcGxhY2VtZW50X2xvY2tlZBgCIAEoCBIhChlvcHBvbmVudF9wbGFjZW1l",
+            "bnRfbG9ja2VkGAMgASgIEhcKD215X3Nob3RzX3Jlc3VsdBgEIAMoBRIYChBz",
+            "aG90c19hZ2FpbnN0X21lGAUgAygFEhAKCG15X2ZsZWV0GAYgAygFEhYKDm5l",
+            "eHRfcGxheWVyX2lkGAcgASgJEiEKGW15X3NoaXBzX3N1bmtfYnlfb3Bwb25l",
+            "bnQYCCADKAkiDAoKR2V0UHJvZmlsZSLEAQoLUHJvZmlsZURhdGESIAoCbWUY",
+            "ASABKAsyFC50d291cC52MS5QbGF5ZXJJbmZvEhEKCWF2YXRhcl9pZBgCIAEo",
+            "CRIQCghmcmFtZV9pZBgDIAEoCRIPCgdwcmVtaXVtGAQgASgIEhAKCGJvdF93",
+            "aW5zGAUgASgFEhIKCmJvdF9sb3NzZXMYBiABKAUSEQoJYm90X2RyYXdzGAcg",
+            "ASgFEiQKBXBhaXJzGAggAygLMhUudHdvdXAudjEuUGFpclN1bW1hcnki9AEK",
+            "C1BhaXJTdW1tYXJ5EhcKD290aGVyX3BsYXllcl9pZBgBIAEoCRIaChJvdGhl",
+            "cl9kaXNwbGF5X25hbWUYAiABKAkSFwoPb3RoZXJfYXZhdGFyX2lkGAMgASgJ",
+            "EhEKCXdpbnNfbWluZRgEIAEoBRITCgt3aW5zX3RoZWlycxgFIAEoBRINCgVk",
+            "cmF3cxgGIAEoBRIVCg10b3RhbF9tYXRjaGVzGAcgASgFEhYKDm1pbGVzdG9u",
+            "ZV90aWVyGAggASgJEhEKCWR1b19sZXZlbBgJIAEoBRIeChZsYXN0X3BsYXll",
+            "ZF9hdF91bml4X21zGAogASgDIigKDUdldFBhaXJEZXRhaWwSFwoPb3RoZXJf",
+            "cGxheWVyX2lkGAEgASgJIsQBCgpQYWlyRGV0YWlsEiYKB3N1bW1hcnkYASAB",
+            "KAsyFS50d291cC52MS5QYWlyU3VtbWFyeRIsCgx2ZXJzdXNfbGluZXMYAiAD",
+            "KAsyFi50d291cC52MS5QYWlyR2FtZUxpbmUSKQoKY29vcF9saW5lcxgDIAMo",
+            "CzIVLnR3b3VwLnYxLkR1b0dhbWVMaW5lEh8KF3N0cmVha19ob2xkZXJfcGxh",
+            "eWVyX2lkGAQgASgJEhQKDHN0cmVha19jb3VudBgFIAEoBSJWCgxQYWlyR2Ft",
+            "ZUxpbmUSDwoHZ2FtZV9pZBgBIAEoCRIRCgl3aW5zX21pbmUYAiABKAUSEwoL",
+            "d2luc190aGVpcnMYAyABKAUSDQoFZHJhd3MYBCABKAUiSQoLRHVvR2FtZUxp",
+            "bmUSDwoHZ2FtZV9pZBgBIAEoCRISCgpiZXN0X3Njb3JlGAIgASgFEhUKDXRv",
+            "dGFsX21hdGNoZXMYAyABKAUiRwoKU2V0UHJvZmlsZRIUCgxkaXNwbGF5X25h",
+            "bWUYASABKAkSEQoJYXZhdGFyX2lkGAIgASgJEhAKCGZyYW1lX2lkGAMgASgJ",
+            "IgkKB0dldFNob3AigAEKCFNob3BJdGVtEhAKCGl0ZW1fa2V5GAEgASgJEgwK",
+            "BHR5cGUYAiABKAkSFQoNcHJpY2VfdGlja2V0cxgDIAEoBRIZChFwcmVtaXVt",
+            "X2V4Y2x1c2l2ZRgEIAEoCBINCgVvd25lZBgFIAEoCBITCgtwcmljZV9jb2lu",
+            "cxgGIAEoBSKJAQoIU2hvcERhdGESIQoFaXRlbXMYASADKAsyEi50d291cC52",
+            "MS5TaG9wSXRlbRIWCg50aWNrZXRfYmFsYW5jZRgCIAEoBRIbChNhZHNfcmVt",
+            "YWluaW5nX3RvZGF5GAMgASgFEg8KB3ByZW1pdW0YBCABKAgSFAoMY29pbl9i",
+            "YWxhbmNlGAUgASgFIg8KDUNsYWltQWRUaWNrZXQiIAoMUHVyY2hhc2VJdGVt",
+            "EhAKCGl0ZW1fa2V5GAEgASgJIssBCgxXYWxsZXRVcGRhdGUSFgoOdGlja2V0",
+            "X2JhbGFuY2UYASABKAUSGwoTYWRzX3JlbWFpbmluZ190b2RheRgCIAEoBRIZ",
+            "ChF1bmxvY2tlZF9pdGVtX2tleRgDIAEoCRIUCgxjb2luX2JhbGFuY2UYBCAB",
+            "KAUSFAoMc3RyZWFrX2NvdW50GAUgASgFEh4KFmRhaWx5X3Jld2FyZF9hdmFp",
+            "bGFibGUYBiABKAgSHwoXbmV4dF9kYWlseV9yZXdhcmRfY29pbnMYByABKAUi",
+            "LwoQUHJlbWl1bVB1cmNoYXNlZBIbChNwbGF5X3B1cmNoYXNlX3Rva2VuGAEg",
+            "ASgJIiYKEVJlZ2lzdGVyUHVzaFRva2VuEhEKCWZjbV90b2tlbhgBIAEoCSIS",
+            "ChBDbGFpbURhaWx5UmV3YXJkIlYKEkRhaWx5UmV3YXJkQ2xhaW1lZBIUCgxy",
+            "ZXdhcmRfY29pbnMYASABKAUSFAoMc3RyZWFrX2NvdW50GAIgASgFEhQKDGNv",
+            "aW5fYmFsYW5jZRgDIAEoBSLuAQoNRWNvbm9teUNvbmZpZxJBCg5nYW1lX2Nv",
+            "aW5fY29zdBgBIAMoCzIpLnR3b3VwLnYxLkVjb25vbXlDb25maWcuR2FtZUNv",
+            "aW5Db3N0RW50cnkSFwoPYWRfcmV3YXJkX2NvaW5zGAIgASgFEhQKDGFkX2Rh",
+            "aWx5X2NhcBgDIAEoBRIcChRkYWlseV9zdHJlYWtfcmV3YXJkcxgEIAMoBRIY",
+            "ChBzdGFydGluZ19iYWxhbmNlGAUgASgFGjMKEUdhbWVDb2luQ29zdEVudHJ5",
+            "EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoBToCOAEqNQoNUmVtYXRjaENo",
             "b2ljZRIVChFSRU1BVENIX1NBTUVfR0FNRRAAEg0KCU5FWFRfR0FNRRABKkEK",
             "EFJlZmxleFJvdW5kUGhhc2USDgoKUkRfV0FJVElORxAAEgwKCFJEX0FSTUVE",
             "EAESDwoLUkRfUkVTT0xWRUQQAipDCg9CYXR0bGVzaGlwUGhhc2USEAoMQlNf",
@@ -204,7 +219,7 @@ namespace Twoup.V1 {
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Twoup.V1.RematchChoice), typeof(global::Twoup.V1.ReflexRoundPhase), typeof(global::Twoup.V1.BattleshipPhase), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.Envelope), global::Twoup.V1.Envelope.Parser, new[]{ "ClientHello", "ServerHello", "JoinQueue", "LeaveQueue", "CreateRoom", "JoinRoom", "RoomCreated", "MatchFound", "GameStart", "GameInput", "GameState", "GameOver", "RematchRequest", "RematchStatusUpdate", "Ping", "Pong", "Error", "PairFound", "VoteGame", "VoteUpdate", "VotingLocked", "VotingShowdown", "ShowdownPick", "VotingCancelled", "StartBotMatch", "RoomJoinPending", "RoomExpired", "ListAsyncMatches", "AsyncMatchList", "ResumeAsyncMatch", "MatchResumed", "MatchWentAsync", "EmoteSend", "EmoteBroadcast", "GetProfile", "ProfileData", "GetPairDetail", "PairDetail", "GetShop", "ShopData", "ClaimAdTicket", "WalletUpdate", "PurchaseItem", "SetProfile", "RegisterPushToken", "PremiumPurchased" }, new[]{ "Payload" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.Envelope), global::Twoup.V1.Envelope.Parser, new[]{ "ClientHello", "ServerHello", "JoinQueue", "LeaveQueue", "CreateRoom", "JoinRoom", "RoomCreated", "MatchFound", "GameStart", "GameInput", "GameState", "GameOver", "RematchRequest", "RematchStatusUpdate", "Ping", "Pong", "Error", "PairFound", "VoteGame", "VoteUpdate", "VotingLocked", "VotingShowdown", "ShowdownPick", "VotingCancelled", "StartBotMatch", "RoomJoinPending", "RoomExpired", "ListAsyncMatches", "AsyncMatchList", "ResumeAsyncMatch", "MatchResumed", "MatchWentAsync", "EmoteSend", "EmoteBroadcast", "GetProfile", "ProfileData", "GetPairDetail", "PairDetail", "GetShop", "ShopData", "ClaimAdTicket", "WalletUpdate", "PurchaseItem", "SetProfile", "RegisterPushToken", "PremiumPurchased", "ClaimDailyReward", "DailyRewardClaimed", "EconomyConfig" }, new[]{ "Payload" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ClientHello), global::Twoup.V1.ClientHello.Parser, new[]{ "DeviceId", "DisplayName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ServerHello), global::Twoup.V1.ServerHello.Parser, new[]{ "PlayerId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.JoinQueue), global::Twoup.V1.JoinQueue.Parser, null, null, null, null, null),
@@ -266,13 +281,16 @@ namespace Twoup.V1 {
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.DuoGameLine), global::Twoup.V1.DuoGameLine.Parser, new[]{ "GameId", "BestScore", "TotalMatches" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.SetProfile), global::Twoup.V1.SetProfile.Parser, new[]{ "DisplayName", "AvatarId", "FrameId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.GetShop), global::Twoup.V1.GetShop.Parser, null, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ShopItem), global::Twoup.V1.ShopItem.Parser, new[]{ "ItemKey", "Type", "PriceTickets", "PremiumExclusive", "Owned" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ShopData), global::Twoup.V1.ShopData.Parser, new[]{ "Items", "TicketBalance", "AdsRemainingToday", "Premium" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ShopItem), global::Twoup.V1.ShopItem.Parser, new[]{ "ItemKey", "Type", "PriceTickets", "PremiumExclusive", "Owned", "PriceCoins" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ShopData), global::Twoup.V1.ShopData.Parser, new[]{ "Items", "TicketBalance", "AdsRemainingToday", "Premium", "CoinBalance" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ClaimAdTicket), global::Twoup.V1.ClaimAdTicket.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.PurchaseItem), global::Twoup.V1.PurchaseItem.Parser, new[]{ "ItemKey" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.WalletUpdate), global::Twoup.V1.WalletUpdate.Parser, new[]{ "TicketBalance", "AdsRemainingToday", "UnlockedItemKey" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.WalletUpdate), global::Twoup.V1.WalletUpdate.Parser, new[]{ "TicketBalance", "AdsRemainingToday", "UnlockedItemKey", "CoinBalance", "StreakCount", "DailyRewardAvailable", "NextDailyRewardCoins" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.PremiumPurchased), global::Twoup.V1.PremiumPurchased.Parser, new[]{ "PlayPurchaseToken" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.RegisterPushToken), global::Twoup.V1.RegisterPushToken.Parser, new[]{ "FcmToken" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.RegisterPushToken), global::Twoup.V1.RegisterPushToken.Parser, new[]{ "FcmToken" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.ClaimDailyReward), global::Twoup.V1.ClaimDailyReward.Parser, null, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.DailyRewardClaimed), global::Twoup.V1.DailyRewardClaimed.Parser, new[]{ "RewardCoins", "StreakCount", "CoinBalance" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Twoup.V1.EconomyConfig), global::Twoup.V1.EconomyConfig.Parser, new[]{ "GameCoinCost", "AdRewardCoins", "AdDailyCap", "DailyStreakRewards", "StartingBalance" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
@@ -472,6 +490,15 @@ namespace Twoup.V1 {
           break;
         case PayloadOneofCase.PremiumPurchased:
           PremiumPurchased = other.PremiumPurchased.Clone();
+          break;
+        case PayloadOneofCase.ClaimDailyReward:
+          ClaimDailyReward = other.ClaimDailyReward.Clone();
+          break;
+        case PayloadOneofCase.DailyRewardClaimed:
+          DailyRewardClaimed = other.DailyRewardClaimed.Clone();
+          break;
+        case PayloadOneofCase.EconomyConfig:
+          EconomyConfig = other.EconomyConfig.Clone();
           break;
       }
 
@@ -1042,6 +1069,45 @@ namespace Twoup.V1 {
       }
     }
 
+    /// <summary>Field number for the "claim_daily_reward" field.</summary>
+    public const int ClaimDailyRewardFieldNumber = 102;
+    /// <summary>
+    /// Ekonomi coin — TDD §3.1.8 (GDD v1.2 §4)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Twoup.V1.ClaimDailyReward ClaimDailyReward {
+      get { return payloadCase_ == PayloadOneofCase.ClaimDailyReward ? (global::Twoup.V1.ClaimDailyReward) payload_ : null; }
+      set {
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.ClaimDailyReward;
+      }
+    }
+
+    /// <summary>Field number for the "daily_reward_claimed" field.</summary>
+    public const int DailyRewardClaimedFieldNumber = 103;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Twoup.V1.DailyRewardClaimed DailyRewardClaimed {
+      get { return payloadCase_ == PayloadOneofCase.DailyRewardClaimed ? (global::Twoup.V1.DailyRewardClaimed) payload_ : null; }
+      set {
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.DailyRewardClaimed;
+      }
+    }
+
+    /// <summary>Field number for the "economy_config" field.</summary>
+    public const int EconomyConfigFieldNumber = 104;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Twoup.V1.EconomyConfig EconomyConfig {
+      get { return payloadCase_ == PayloadOneofCase.EconomyConfig ? (global::Twoup.V1.EconomyConfig) payload_ : null; }
+      set {
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.EconomyConfig;
+      }
+    }
+
     private object payload_;
     /// <summary>Enum of possible cases for the "payload" oneof.</summary>
     public enum PayloadOneofCase {
@@ -1092,6 +1158,9 @@ namespace Twoup.V1 {
       SetProfile = 99,
       RegisterPushToken = 100,
       PremiumPurchased = 101,
+      ClaimDailyReward = 102,
+      DailyRewardClaimed = 103,
+      EconomyConfig = 104,
     }
     private PayloadOneofCase payloadCase_ = PayloadOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1168,6 +1237,9 @@ namespace Twoup.V1 {
       if (!object.Equals(SetProfile, other.SetProfile)) return false;
       if (!object.Equals(RegisterPushToken, other.RegisterPushToken)) return false;
       if (!object.Equals(PremiumPurchased, other.PremiumPurchased)) return false;
+      if (!object.Equals(ClaimDailyReward, other.ClaimDailyReward)) return false;
+      if (!object.Equals(DailyRewardClaimed, other.DailyRewardClaimed)) return false;
+      if (!object.Equals(EconomyConfig, other.EconomyConfig)) return false;
       if (PayloadCase != other.PayloadCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -1222,6 +1294,9 @@ namespace Twoup.V1 {
       if (payloadCase_ == PayloadOneofCase.SetProfile) hash ^= SetProfile.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.RegisterPushToken) hash ^= RegisterPushToken.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.PremiumPurchased) hash ^= PremiumPurchased.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.ClaimDailyReward) hash ^= ClaimDailyReward.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.DailyRewardClaimed) hash ^= DailyRewardClaimed.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.EconomyConfig) hash ^= EconomyConfig.GetHashCode();
       hash ^= (int) payloadCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -1425,6 +1500,18 @@ namespace Twoup.V1 {
         output.WriteRawTag(170, 6);
         output.WriteMessage(PremiumPurchased);
       }
+      if (payloadCase_ == PayloadOneofCase.ClaimDailyReward) {
+        output.WriteRawTag(178, 6);
+        output.WriteMessage(ClaimDailyReward);
+      }
+      if (payloadCase_ == PayloadOneofCase.DailyRewardClaimed) {
+        output.WriteRawTag(186, 6);
+        output.WriteMessage(DailyRewardClaimed);
+      }
+      if (payloadCase_ == PayloadOneofCase.EconomyConfig) {
+        output.WriteRawTag(194, 6);
+        output.WriteMessage(EconomyConfig);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1619,6 +1706,18 @@ namespace Twoup.V1 {
         output.WriteRawTag(170, 6);
         output.WriteMessage(PremiumPurchased);
       }
+      if (payloadCase_ == PayloadOneofCase.ClaimDailyReward) {
+        output.WriteRawTag(178, 6);
+        output.WriteMessage(ClaimDailyReward);
+      }
+      if (payloadCase_ == PayloadOneofCase.DailyRewardClaimed) {
+        output.WriteRawTag(186, 6);
+        output.WriteMessage(DailyRewardClaimed);
+      }
+      if (payloadCase_ == PayloadOneofCase.EconomyConfig) {
+        output.WriteRawTag(194, 6);
+        output.WriteMessage(EconomyConfig);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1766,6 +1865,15 @@ namespace Twoup.V1 {
       }
       if (payloadCase_ == PayloadOneofCase.PremiumPurchased) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(PremiumPurchased);
+      }
+      if (payloadCase_ == PayloadOneofCase.ClaimDailyReward) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(ClaimDailyReward);
+      }
+      if (payloadCase_ == PayloadOneofCase.DailyRewardClaimed) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(DailyRewardClaimed);
+      }
+      if (payloadCase_ == PayloadOneofCase.EconomyConfig) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(EconomyConfig);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2055,6 +2163,24 @@ namespace Twoup.V1 {
             PremiumPurchased = new global::Twoup.V1.PremiumPurchased();
           }
           PremiumPurchased.MergeFrom(other.PremiumPurchased);
+          break;
+        case PayloadOneofCase.ClaimDailyReward:
+          if (ClaimDailyReward == null) {
+            ClaimDailyReward = new global::Twoup.V1.ClaimDailyReward();
+          }
+          ClaimDailyReward.MergeFrom(other.ClaimDailyReward);
+          break;
+        case PayloadOneofCase.DailyRewardClaimed:
+          if (DailyRewardClaimed == null) {
+            DailyRewardClaimed = new global::Twoup.V1.DailyRewardClaimed();
+          }
+          DailyRewardClaimed.MergeFrom(other.DailyRewardClaimed);
+          break;
+        case PayloadOneofCase.EconomyConfig:
+          if (EconomyConfig == null) {
+            EconomyConfig = new global::Twoup.V1.EconomyConfig();
+          }
+          EconomyConfig.MergeFrom(other.EconomyConfig);
           break;
       }
 
@@ -2491,6 +2617,33 @@ namespace Twoup.V1 {
             PremiumPurchased = subBuilder;
             break;
           }
+          case 818: {
+            global::Twoup.V1.ClaimDailyReward subBuilder = new global::Twoup.V1.ClaimDailyReward();
+            if (payloadCase_ == PayloadOneofCase.ClaimDailyReward) {
+              subBuilder.MergeFrom(ClaimDailyReward);
+            }
+            input.ReadMessage(subBuilder);
+            ClaimDailyReward = subBuilder;
+            break;
+          }
+          case 826: {
+            global::Twoup.V1.DailyRewardClaimed subBuilder = new global::Twoup.V1.DailyRewardClaimed();
+            if (payloadCase_ == PayloadOneofCase.DailyRewardClaimed) {
+              subBuilder.MergeFrom(DailyRewardClaimed);
+            }
+            input.ReadMessage(subBuilder);
+            DailyRewardClaimed = subBuilder;
+            break;
+          }
+          case 834: {
+            global::Twoup.V1.EconomyConfig subBuilder = new global::Twoup.V1.EconomyConfig();
+            if (payloadCase_ == PayloadOneofCase.EconomyConfig) {
+              subBuilder.MergeFrom(EconomyConfig);
+            }
+            input.ReadMessage(subBuilder);
+            EconomyConfig = subBuilder;
+            break;
+          }
         }
       }
     #endif
@@ -2922,6 +3075,33 @@ namespace Twoup.V1 {
             }
             input.ReadMessage(subBuilder);
             PremiumPurchased = subBuilder;
+            break;
+          }
+          case 818: {
+            global::Twoup.V1.ClaimDailyReward subBuilder = new global::Twoup.V1.ClaimDailyReward();
+            if (payloadCase_ == PayloadOneofCase.ClaimDailyReward) {
+              subBuilder.MergeFrom(ClaimDailyReward);
+            }
+            input.ReadMessage(subBuilder);
+            ClaimDailyReward = subBuilder;
+            break;
+          }
+          case 826: {
+            global::Twoup.V1.DailyRewardClaimed subBuilder = new global::Twoup.V1.DailyRewardClaimed();
+            if (payloadCase_ == PayloadOneofCase.DailyRewardClaimed) {
+              subBuilder.MergeFrom(DailyRewardClaimed);
+            }
+            input.ReadMessage(subBuilder);
+            DailyRewardClaimed = subBuilder;
+            break;
+          }
+          case 834: {
+            global::Twoup.V1.EconomyConfig subBuilder = new global::Twoup.V1.EconomyConfig();
+            if (payloadCase_ == PayloadOneofCase.EconomyConfig) {
+              subBuilder.MergeFrom(EconomyConfig);
+            }
+            input.ReadMessage(subBuilder);
+            EconomyConfig = subBuilder;
             break;
           }
         }
@@ -19389,6 +19569,7 @@ namespace Twoup.V1 {
       priceTickets_ = other.priceTickets_;
       premiumExclusive_ = other.premiumExclusive_;
       owned_ = other.owned_;
+      priceCoins_ = other.priceCoins_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -19431,6 +19612,9 @@ namespace Twoup.V1 {
     /// <summary>Field number for the "price_tickets" field.</summary>
     public const int PriceTicketsFieldNumber = 3;
     private int priceTickets_;
+    /// <summary>
+    /// DEPRECATED v1.2 — tidak diisi; pakai price_coins
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int PriceTickets {
@@ -19464,6 +19648,21 @@ namespace Twoup.V1 {
       }
     }
 
+    /// <summary>Field number for the "price_coins" field.</summary>
+    public const int PriceCoinsFieldNumber = 6;
+    private int priceCoins_;
+    /// <summary>
+    /// NEW v1.2 — harga coin (GDD v1.2 §4.5)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PriceCoins {
+      get { return priceCoins_; }
+      set {
+        priceCoins_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -19484,6 +19683,7 @@ namespace Twoup.V1 {
       if (PriceTickets != other.PriceTickets) return false;
       if (PremiumExclusive != other.PremiumExclusive) return false;
       if (Owned != other.Owned) return false;
+      if (PriceCoins != other.PriceCoins) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -19496,6 +19696,7 @@ namespace Twoup.V1 {
       if (PriceTickets != 0) hash ^= PriceTickets.GetHashCode();
       if (PremiumExclusive != false) hash ^= PremiumExclusive.GetHashCode();
       if (Owned != false) hash ^= Owned.GetHashCode();
+      if (PriceCoins != 0) hash ^= PriceCoins.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -19534,6 +19735,10 @@ namespace Twoup.V1 {
         output.WriteRawTag(40);
         output.WriteBool(Owned);
       }
+      if (PriceCoins != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(PriceCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -19564,6 +19769,10 @@ namespace Twoup.V1 {
         output.WriteRawTag(40);
         output.WriteBool(Owned);
       }
+      if (PriceCoins != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(PriceCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -19588,6 +19797,9 @@ namespace Twoup.V1 {
       }
       if (Owned != false) {
         size += 1 + 1;
+      }
+      if (PriceCoins != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PriceCoins);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -19615,6 +19827,9 @@ namespace Twoup.V1 {
       }
       if (other.Owned != false) {
         Owned = other.Owned;
+      }
+      if (other.PriceCoins != 0) {
+        PriceCoins = other.PriceCoins;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -19655,6 +19870,10 @@ namespace Twoup.V1 {
             Owned = input.ReadBool();
             break;
           }
+          case 48: {
+            PriceCoins = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -19692,6 +19911,10 @@ namespace Twoup.V1 {
           }
           case 40: {
             Owned = input.ReadBool();
+            break;
+          }
+          case 48: {
+            PriceCoins = input.ReadInt32();
             break;
           }
         }
@@ -19740,6 +19963,7 @@ namespace Twoup.V1 {
       ticketBalance_ = other.ticketBalance_;
       adsRemainingToday_ = other.adsRemainingToday_;
       premium_ = other.premium_;
+      coinBalance_ = other.coinBalance_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -19766,6 +19990,9 @@ namespace Twoup.V1 {
     /// <summary>Field number for the "ticket_balance" field.</summary>
     public const int TicketBalanceFieldNumber = 2;
     private int ticketBalance_;
+    /// <summary>
+    /// DEPRECATED v1.2 — tidak diisi; pakai coin_balance
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int TicketBalance {
@@ -19802,6 +20029,21 @@ namespace Twoup.V1 {
       }
     }
 
+    /// <summary>Field number for the "coin_balance" field.</summary>
+    public const int CoinBalanceFieldNumber = 5;
+    private int coinBalance_;
+    /// <summary>
+    /// NEW v1.2
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CoinBalance {
+      get { return coinBalance_; }
+      set {
+        coinBalance_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -19821,6 +20063,7 @@ namespace Twoup.V1 {
       if (TicketBalance != other.TicketBalance) return false;
       if (AdsRemainingToday != other.AdsRemainingToday) return false;
       if (Premium != other.Premium) return false;
+      if (CoinBalance != other.CoinBalance) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -19832,6 +20075,7 @@ namespace Twoup.V1 {
       if (TicketBalance != 0) hash ^= TicketBalance.GetHashCode();
       if (AdsRemainingToday != 0) hash ^= AdsRemainingToday.GetHashCode();
       if (Premium != false) hash ^= Premium.GetHashCode();
+      if (CoinBalance != 0) hash ^= CoinBalance.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -19863,6 +20107,10 @@ namespace Twoup.V1 {
         output.WriteRawTag(32);
         output.WriteBool(Premium);
       }
+      if (CoinBalance != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(CoinBalance);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -19886,6 +20134,10 @@ namespace Twoup.V1 {
         output.WriteRawTag(32);
         output.WriteBool(Premium);
       }
+      if (CoinBalance != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(CoinBalance);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -19905,6 +20157,9 @@ namespace Twoup.V1 {
       }
       if (Premium != false) {
         size += 1 + 1;
+      }
+      if (CoinBalance != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CoinBalance);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -19927,6 +20182,9 @@ namespace Twoup.V1 {
       }
       if (other.Premium != false) {
         Premium = other.Premium;
+      }
+      if (other.CoinBalance != 0) {
+        CoinBalance = other.CoinBalance;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -19963,6 +20221,10 @@ namespace Twoup.V1 {
             Premium = input.ReadBool();
             break;
           }
+          case 40: {
+            CoinBalance = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -19996,6 +20258,10 @@ namespace Twoup.V1 {
           }
           case 32: {
             Premium = input.ReadBool();
+            break;
+          }
+          case 40: {
+            CoinBalance = input.ReadInt32();
             break;
           }
         }
@@ -20411,6 +20677,10 @@ namespace Twoup.V1 {
       ticketBalance_ = other.ticketBalance_;
       adsRemainingToday_ = other.adsRemainingToday_;
       unlockedItemKey_ = other.unlockedItemKey_;
+      coinBalance_ = other.coinBalance_;
+      streakCount_ = other.streakCount_;
+      dailyRewardAvailable_ = other.dailyRewardAvailable_;
+      nextDailyRewardCoins_ = other.nextDailyRewardCoins_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -20423,6 +20693,9 @@ namespace Twoup.V1 {
     /// <summary>Field number for the "ticket_balance" field.</summary>
     public const int TicketBalanceFieldNumber = 1;
     private int ticketBalance_;
+    /// <summary>
+    /// DEPRECATED v1.2 — tidak diisi; pakai coin_balance
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int TicketBalance {
@@ -20459,6 +20732,66 @@ namespace Twoup.V1 {
       }
     }
 
+    /// <summary>Field number for the "coin_balance" field.</summary>
+    public const int CoinBalanceFieldNumber = 4;
+    private int coinBalance_;
+    /// <summary>
+    /// NEW v1.2
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CoinBalance {
+      get { return coinBalance_; }
+      set {
+        coinBalance_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "streak_count" field.</summary>
+    public const int StreakCountFieldNumber = 5;
+    private int streakCount_;
+    /// <summary>
+    /// NEW v1.2 — streak login berjalan (0 = belum pernah claim)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int StreakCount {
+      get { return streakCount_; }
+      set {
+        streakCount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "daily_reward_available" field.</summary>
+    public const int DailyRewardAvailableFieldNumber = 6;
+    private bool dailyRewardAvailable_;
+    /// <summary>
+    /// NEW v1.2 — true kalau last_claim_date != hari ini (waktu server)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool DailyRewardAvailable {
+      get { return dailyRewardAvailable_; }
+      set {
+        dailyRewardAvailable_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "next_daily_reward_coins" field.</summary>
+    public const int NextDailyRewardCoinsFieldNumber = 7;
+    private int nextDailyRewardCoins_;
+    /// <summary>
+    /// NEW v1.2 — nominal reward kalau claim sekarang (untuk popup S2)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int NextDailyRewardCoins {
+      get { return nextDailyRewardCoins_; }
+      set {
+        nextDailyRewardCoins_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -20477,6 +20810,10 @@ namespace Twoup.V1 {
       if (TicketBalance != other.TicketBalance) return false;
       if (AdsRemainingToday != other.AdsRemainingToday) return false;
       if (UnlockedItemKey != other.UnlockedItemKey) return false;
+      if (CoinBalance != other.CoinBalance) return false;
+      if (StreakCount != other.StreakCount) return false;
+      if (DailyRewardAvailable != other.DailyRewardAvailable) return false;
+      if (NextDailyRewardCoins != other.NextDailyRewardCoins) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -20487,6 +20824,10 @@ namespace Twoup.V1 {
       if (TicketBalance != 0) hash ^= TicketBalance.GetHashCode();
       if (AdsRemainingToday != 0) hash ^= AdsRemainingToday.GetHashCode();
       if (UnlockedItemKey.Length != 0) hash ^= UnlockedItemKey.GetHashCode();
+      if (CoinBalance != 0) hash ^= CoinBalance.GetHashCode();
+      if (StreakCount != 0) hash ^= StreakCount.GetHashCode();
+      if (DailyRewardAvailable != false) hash ^= DailyRewardAvailable.GetHashCode();
+      if (NextDailyRewardCoins != 0) hash ^= NextDailyRewardCoins.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -20517,6 +20858,22 @@ namespace Twoup.V1 {
         output.WriteRawTag(26);
         output.WriteString(UnlockedItemKey);
       }
+      if (CoinBalance != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(CoinBalance);
+      }
+      if (StreakCount != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(StreakCount);
+      }
+      if (DailyRewardAvailable != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(DailyRewardAvailable);
+      }
+      if (NextDailyRewardCoins != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(NextDailyRewardCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -20539,6 +20896,22 @@ namespace Twoup.V1 {
         output.WriteRawTag(26);
         output.WriteString(UnlockedItemKey);
       }
+      if (CoinBalance != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(CoinBalance);
+      }
+      if (StreakCount != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(StreakCount);
+      }
+      if (DailyRewardAvailable != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(DailyRewardAvailable);
+      }
+      if (NextDailyRewardCoins != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(NextDailyRewardCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -20557,6 +20930,18 @@ namespace Twoup.V1 {
       }
       if (UnlockedItemKey.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(UnlockedItemKey);
+      }
+      if (CoinBalance != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CoinBalance);
+      }
+      if (StreakCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(StreakCount);
+      }
+      if (DailyRewardAvailable != false) {
+        size += 1 + 1;
+      }
+      if (NextDailyRewardCoins != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(NextDailyRewardCoins);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -20578,6 +20963,18 @@ namespace Twoup.V1 {
       }
       if (other.UnlockedItemKey.Length != 0) {
         UnlockedItemKey = other.UnlockedItemKey;
+      }
+      if (other.CoinBalance != 0) {
+        CoinBalance = other.CoinBalance;
+      }
+      if (other.StreakCount != 0) {
+        StreakCount = other.StreakCount;
+      }
+      if (other.DailyRewardAvailable != false) {
+        DailyRewardAvailable = other.DailyRewardAvailable;
+      }
+      if (other.NextDailyRewardCoins != 0) {
+        NextDailyRewardCoins = other.NextDailyRewardCoins;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -20610,6 +21007,22 @@ namespace Twoup.V1 {
             UnlockedItemKey = input.ReadString();
             break;
           }
+          case 32: {
+            CoinBalance = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            StreakCount = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            DailyRewardAvailable = input.ReadBool();
+            break;
+          }
+          case 56: {
+            NextDailyRewardCoins = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -20639,6 +21052,22 @@ namespace Twoup.V1 {
           }
           case 26: {
             UnlockedItemKey = input.ReadString();
+            break;
+          }
+          case 32: {
+            CoinBalance = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            StreakCount = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            DailyRewardAvailable = input.ReadBool();
+            break;
+          }
+          case 56: {
+            NextDailyRewardCoins = input.ReadInt32();
             break;
           }
         }
@@ -21046,6 +21475,799 @@ namespace Twoup.V1 {
             break;
           case 10: {
             FcmToken = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Client -> server, tap tombol claim di popup Daily Reward S2.
+  /// Jawaban: DailyRewardClaimed, atau Error("daily_already_claimed").
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class ClaimDailyReward : pb::IMessage<ClaimDailyReward>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ClaimDailyReward> _parser = new pb::MessageParser<ClaimDailyReward>(() => new ClaimDailyReward());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<ClaimDailyReward> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Twoup.V1.TwoupReflection.Descriptor.MessageTypes[69]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClaimDailyReward() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClaimDailyReward(ClaimDailyReward other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClaimDailyReward Clone() {
+      return new ClaimDailyReward(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as ClaimDailyReward);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(ClaimDailyReward other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(ClaimDailyReward other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DailyRewardClaimed : pb::IMessage<DailyRewardClaimed>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DailyRewardClaimed> _parser = new pb::MessageParser<DailyRewardClaimed>(() => new DailyRewardClaimed());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DailyRewardClaimed> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Twoup.V1.TwoupReflection.Descriptor.MessageTypes[70]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DailyRewardClaimed() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DailyRewardClaimed(DailyRewardClaimed other) : this() {
+      rewardCoins_ = other.rewardCoins_;
+      streakCount_ = other.streakCount_;
+      coinBalance_ = other.coinBalance_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DailyRewardClaimed Clone() {
+      return new DailyRewardClaimed(this);
+    }
+
+    /// <summary>Field number for the "reward_coins" field.</summary>
+    public const int RewardCoinsFieldNumber = 1;
+    private int rewardCoins_;
+    /// <summary>
+    /// nominal yang baru diberikan (untuk animasi "+7")
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int RewardCoins {
+      get { return rewardCoins_; }
+      set {
+        rewardCoins_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "streak_count" field.</summary>
+    public const int StreakCountFieldNumber = 2;
+    private int streakCount_;
+    /// <summary>
+    /// streak SETELAH claim ini (1..n)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int StreakCount {
+      get { return streakCount_; }
+      set {
+        streakCount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "coin_balance" field.</summary>
+    public const int CoinBalanceFieldNumber = 3;
+    private int coinBalance_;
+    /// <summary>
+    /// saldo baru
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CoinBalance {
+      get { return coinBalance_; }
+      set {
+        coinBalance_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DailyRewardClaimed);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DailyRewardClaimed other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (RewardCoins != other.RewardCoins) return false;
+      if (StreakCount != other.StreakCount) return false;
+      if (CoinBalance != other.CoinBalance) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (RewardCoins != 0) hash ^= RewardCoins.GetHashCode();
+      if (StreakCount != 0) hash ^= StreakCount.GetHashCode();
+      if (CoinBalance != 0) hash ^= CoinBalance.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (RewardCoins != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(RewardCoins);
+      }
+      if (StreakCount != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(StreakCount);
+      }
+      if (CoinBalance != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(CoinBalance);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (RewardCoins != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(RewardCoins);
+      }
+      if (StreakCount != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(StreakCount);
+      }
+      if (CoinBalance != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(CoinBalance);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (RewardCoins != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RewardCoins);
+      }
+      if (StreakCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(StreakCount);
+      }
+      if (CoinBalance != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CoinBalance);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DailyRewardClaimed other) {
+      if (other == null) {
+        return;
+      }
+      if (other.RewardCoins != 0) {
+        RewardCoins = other.RewardCoins;
+      }
+      if (other.StreakCount != 0) {
+        StreakCount = other.StreakCount;
+      }
+      if (other.CoinBalance != 0) {
+        CoinBalance = other.CoinBalance;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            RewardCoins = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            StreakCount = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            CoinBalance = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            RewardCoins = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            StreakCount = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            CoinBalance = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Server -> client, dikirim sekali setelah ServerHello (sebelum WalletUpdate
+  /// snapshot). Sumber kebenaran SEMUA angka ekonomi — client TIDAK meng-hardcode
+  /// harga game / nominal reward / cap; semua render dari sini (GDD v1.2 §10:
+  /// tunable tanpa release client).
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class EconomyConfig : pb::IMessage<EconomyConfig>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<EconomyConfig> _parser = new pb::MessageParser<EconomyConfig>(() => new EconomyConfig());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<EconomyConfig> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Twoup.V1.TwoupReflection.Descriptor.MessageTypes[71]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public EconomyConfig() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public EconomyConfig(EconomyConfig other) : this() {
+      gameCoinCost_ = other.gameCoinCost_.Clone();
+      adRewardCoins_ = other.adRewardCoins_;
+      adDailyCap_ = other.adDailyCap_;
+      dailyStreakRewards_ = other.dailyStreakRewards_.Clone();
+      startingBalance_ = other.startingBalance_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public EconomyConfig Clone() {
+      return new EconomyConfig(this);
+    }
+
+    /// <summary>Field number for the "game_coin_cost" field.</summary>
+    public const int GameCoinCostFieldNumber = 1;
+    private static readonly pbc::MapField<string, int>.Codec _map_gameCoinCost_codec
+        = new pbc::MapField<string, int>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForInt32(16, 0), 10);
+    private readonly pbc::MapField<string, int> gameCoinCost_ = new pbc::MapField<string, int>();
+    /// <summary>
+    /// game_id -> harga
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<string, int> GameCoinCost {
+      get { return gameCoinCost_; }
+    }
+
+    /// <summary>Field number for the "ad_reward_coins" field.</summary>
+    public const int AdRewardCoinsFieldNumber = 2;
+    private int adRewardCoins_;
+    /// <summary>
+    /// default 3
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int AdRewardCoins {
+      get { return adRewardCoins_; }
+      set {
+        adRewardCoins_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ad_daily_cap" field.</summary>
+    public const int AdDailyCapFieldNumber = 3;
+    private int adDailyCap_;
+    /// <summary>
+    /// default 5
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int AdDailyCap {
+      get { return adDailyCap_; }
+      set {
+        adDailyCap_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "daily_streak_rewards" field.</summary>
+    public const int DailyStreakRewardsFieldNumber = 4;
+    private static readonly pb::FieldCodec<int> _repeated_dailyStreakRewards_codec
+        = pb::FieldCodec.ForInt32(34);
+    private readonly pbc::RepeatedField<int> dailyStreakRewards_ = new pbc::RepeatedField<int>();
+    /// <summary>
+    /// default [5,6,7,8,10,12,15]; index = hari streak-1
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<int> DailyStreakRewards {
+      get { return dailyStreakRewards_; }
+    }
+
+    /// <summary>Field number for the "starting_balance" field.</summary>
+    public const int StartingBalanceFieldNumber = 5;
+    private int startingBalance_;
+    /// <summary>
+    /// default 20 (pemain baru)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int StartingBalance {
+      get { return startingBalance_; }
+      set {
+        startingBalance_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as EconomyConfig);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(EconomyConfig other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!GameCoinCost.Equals(other.GameCoinCost)) return false;
+      if (AdRewardCoins != other.AdRewardCoins) return false;
+      if (AdDailyCap != other.AdDailyCap) return false;
+      if(!dailyStreakRewards_.Equals(other.dailyStreakRewards_)) return false;
+      if (StartingBalance != other.StartingBalance) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= GameCoinCost.GetHashCode();
+      if (AdRewardCoins != 0) hash ^= AdRewardCoins.GetHashCode();
+      if (AdDailyCap != 0) hash ^= AdDailyCap.GetHashCode();
+      hash ^= dailyStreakRewards_.GetHashCode();
+      if (StartingBalance != 0) hash ^= StartingBalance.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      gameCoinCost_.WriteTo(output, _map_gameCoinCost_codec);
+      if (AdRewardCoins != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(AdRewardCoins);
+      }
+      if (AdDailyCap != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(AdDailyCap);
+      }
+      dailyStreakRewards_.WriteTo(output, _repeated_dailyStreakRewards_codec);
+      if (StartingBalance != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(StartingBalance);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      gameCoinCost_.WriteTo(ref output, _map_gameCoinCost_codec);
+      if (AdRewardCoins != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(AdRewardCoins);
+      }
+      if (AdDailyCap != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(AdDailyCap);
+      }
+      dailyStreakRewards_.WriteTo(ref output, _repeated_dailyStreakRewards_codec);
+      if (StartingBalance != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(StartingBalance);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      size += gameCoinCost_.CalculateSize(_map_gameCoinCost_codec);
+      if (AdRewardCoins != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(AdRewardCoins);
+      }
+      if (AdDailyCap != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(AdDailyCap);
+      }
+      size += dailyStreakRewards_.CalculateSize(_repeated_dailyStreakRewards_codec);
+      if (StartingBalance != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(StartingBalance);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(EconomyConfig other) {
+      if (other == null) {
+        return;
+      }
+      gameCoinCost_.MergeFrom(other.gameCoinCost_);
+      if (other.AdRewardCoins != 0) {
+        AdRewardCoins = other.AdRewardCoins;
+      }
+      if (other.AdDailyCap != 0) {
+        AdDailyCap = other.AdDailyCap;
+      }
+      dailyStreakRewards_.Add(other.dailyStreakRewards_);
+      if (other.StartingBalance != 0) {
+        StartingBalance = other.StartingBalance;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            gameCoinCost_.AddEntriesFrom(input, _map_gameCoinCost_codec);
+            break;
+          }
+          case 16: {
+            AdRewardCoins = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            AdDailyCap = input.ReadInt32();
+            break;
+          }
+          case 34:
+          case 32: {
+            dailyStreakRewards_.AddEntriesFrom(input, _repeated_dailyStreakRewards_codec);
+            break;
+          }
+          case 40: {
+            StartingBalance = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            gameCoinCost_.AddEntriesFrom(ref input, _map_gameCoinCost_codec);
+            break;
+          }
+          case 16: {
+            AdRewardCoins = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            AdDailyCap = input.ReadInt32();
+            break;
+          }
+          case 34:
+          case 32: {
+            dailyStreakRewards_.AddEntriesFrom(ref input, _repeated_dailyStreakRewards_codec);
+            break;
+          }
+          case 40: {
+            StartingBalance = input.ReadInt32();
             break;
           }
         }
