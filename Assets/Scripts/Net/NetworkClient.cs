@@ -53,6 +53,9 @@ namespace TwoUp.Net
         public event Action<PairDetail> PairDetailReceived;
         public event Action<ShopData> ShopDataReceived;
         public event Action<WalletUpdate> WalletUpdateReceived;
+        public event Action<EconomyConfig> OnEconomyConfig;
+        public event Action<WalletUpdate> OnWalletUpdate;
+        public event Action<DailyRewardClaimed> OnDailyRewardClaimed;
 
         public float PingIntervalSeconds { get; set; } = 15f;
 
@@ -130,6 +133,11 @@ namespace TwoUp.Net
             {
                 pendingRateLimited[key] = envelope;
             }
+        }
+
+        public void SendClaimDailyReward()
+        {
+            Send(new Envelope { ClaimDailyReward = new ClaimDailyReward() });
         }
 
         private void Update()
@@ -259,7 +267,17 @@ namespace TwoUp.Net
                     ShopDataReceived?.Invoke(env.ShopData);
                     break;
                 case Envelope.PayloadOneofCase.WalletUpdate:
+                    EconomyState.ApplyWallet(env.WalletUpdate);
                     WalletUpdateReceived?.Invoke(env.WalletUpdate);
+                    OnWalletUpdate?.Invoke(env.WalletUpdate);
+                    break;
+                case Envelope.PayloadOneofCase.EconomyConfig:
+                    EconomyState.ApplyConfig(env.EconomyConfig);
+                    OnEconomyConfig?.Invoke(env.EconomyConfig);
+                    break;
+                case Envelope.PayloadOneofCase.DailyRewardClaimed:
+                    EconomyState.ApplyDailyClaimed(env.DailyRewardClaimed);
+                    OnDailyRewardClaimed?.Invoke(env.DailyRewardClaimed);
                     break;
                 case Envelope.PayloadOneofCase.Pong:
                     // TODO: track round-trip latency from Pong.Ts
