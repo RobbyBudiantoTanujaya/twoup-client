@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace TwoUp.EditorTools
 {
-    /// <summary>Authors Shop.unity (S9): ticket balance, watch-ad ticket claim, item catalog, Premium unlock.</summary>
+    /// <summary>Authors Shop.unity (S9): coin balance, watch-ad coin claim, item catalog, Premium unlock.</summary>
     public static class ShopSceneBuilder
     {
         private static readonly Vector2 Center = UiKit.Center;
@@ -20,8 +20,8 @@ namespace TwoUp.EditorTools
             var back = UiKit.CreateButton(screen.transform, "Btn_Back", "Back", new Vector2(220, 90), UiKit.ButtonMuted);
             UiKit.Place(back.gameObject, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40, -40), new Vector2(220, 90));
 
-            var ticketBalanceText = UiKit.CreateText(screen.transform, "Text_TicketBalance", "", 48, Color.white);
-            UiKit.Place(ticketBalanceText.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -60), new Vector2(700, 80));
+            var coinBalanceText = UiKit.CreateText(screen.transform, "Text_CoinBalance", "Coins: 0", 48, Color.white);
+            UiKit.Place(coinBalanceText.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -60), new Vector2(700, 80));
 
             var (watchAdButton, watchAdLabel) = CreateWatchAdButton(screen.transform);
 
@@ -34,15 +34,18 @@ namespace TwoUp.EditorTools
             UiKit.Place(toastText.gameObject, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 290), new Vector2(800, 70));
             toastText.gameObject.SetActive(false);
 
+            var getCoinsPanel = GetCoinsPanelBuilder.Add(screen.transform);
+
             var controller = screen.AddComponent<ShopController>();
             UiKit.SetRef(controller, "backButton", back);
-            UiKit.SetRef(controller, "ticketBalanceText", ticketBalanceText);
+            UiKit.SetRef(controller, "coinBalanceText", coinBalanceText);
             UiKit.SetRef(controller, "watchAdButton", watchAdButton);
             UiKit.SetRef(controller, "watchAdLabel", watchAdLabel);
             UiKit.SetRef(controller, "content", contentGo.transform);
             UiKit.SetRef(controller, "rowTemplate", rowTemplate);
             UiKit.SetRef(controller, "buyPremiumButton", buyPremiumButton);
             UiKit.SetRef(controller, "toastText", toastText);
+            UiKit.SetRef(controller, "getCoinsPanel", getCoinsPanel);
 
             UiKit.SaveScene(scene, "Shop");
             UiKit.AddSceneToBuildSettings("Assets/Scenes/Shop.unity");
@@ -50,7 +53,7 @@ namespace TwoUp.EditorTools
 
         private static (Button button, TMP_Text label) CreateWatchAdButton(Transform screenTransform)
         {
-            var button = UiKit.CreateButton(screenTransform, "Btn_WatchAd", "Watch ad (+1 ticket) - 0/5 today", new Vector2(900, 110), UiKit.ButtonBg);
+            var button = UiKit.CreateButton(screenTransform, "Btn_WatchAd", "Watch Ad (+0c)", new Vector2(900, 110), UiKit.ButtonBg);
             UiKit.Place(button.gameObject, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -170), new Vector2(900, 110));
             var label = button.transform.Find("Label").GetComponent<TMP_Text>();
             label.fontSize = 32;
