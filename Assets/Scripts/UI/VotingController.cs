@@ -207,6 +207,7 @@ namespace TwoUp.UI
                 ShowToast("Pick a game first");
                 return;
             }
+            MatchContext.LastMatchVsBot = true;
             NetworkClient.Instance.Send(new Envelope
             {
                 StartBotMatch = new StartBotMatch { GameId = selectedGameId, Tier = tier },
