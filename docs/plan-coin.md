@@ -138,7 +138,7 @@ Gate audit, TANPA fitur baru. Depends on: keempat task retrofit scene (Home/Voti
 ---
 
 <!-- ccq:progress:start -->
-## CCQ Progress — 11/13 selesai
+## CCQ Progress — 12/13 selesai
 
 - [x] `t_0717_1950_b0347701` Extend proto client ekonomi coin (TDD §3.1.7-3.1.8) + regen C#
 - [x] `t_0717_1950_18e81c41` EconomyState static class + NetworkClient economy events
@@ -150,7 +150,7 @@ Gate audit, TANPA fitur baru. Depends on: keempat task retrofit scene (Home/Voti
 - [x] `t_0717_2106_c35672ba` Remediasi gate: Author EconomyGateTests.cs dengan test missing-script untuk keempat scene retrofit
 - [x] `t_0717_2143_e31e3c22` Remediasi gate: Rework SkeletonBuilder dan semua SceneBuilder menjadi idempotent in-place (find-or-create, bukan Destroy+Instantiate)
 - [x] `t_0717_2106_73b0a24f` Remediasi gate: Wire ShopSceneBuilder.Build() ke SkeletonBuilder.BuildAll() dan verifikasi output Shop.unity
-- [ ] `t_0717_2143_5d497344` Remediasi gate: Pulihkan kriteria idempotensi literal 'clean git status' di docs/plan-coin.md
+- [x] `t_0717_2143_5d497344` Remediasi gate: Pulihkan kriteria idempotensi literal 'clean git status' di docs/plan-coin.md
 - [x] `t_0717_2106_dcc0753c` Remediasi gate: Ganti kriteria idempotency BuildAll dari raw git diff ke pembanding semantik scene
 - [ ] `t_0717_1950_bb08f418` GATE: coin economy client — full rebuild + audit
 <!-- ccq:progress:end -->
