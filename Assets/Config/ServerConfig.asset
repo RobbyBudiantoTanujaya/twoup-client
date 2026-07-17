@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: ServerConfig
   m_EditorClassIdentifier: 
   activeEnvironment: 0
-  devUrl: ws://10.0.2.2:8080/ws
-  stagingUrl: 
+  devTarget: 0
+  devPort: 8080
+  lanIp:
+  stagingUrl:

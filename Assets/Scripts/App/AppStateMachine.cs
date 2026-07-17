@@ -46,6 +46,11 @@ namespace TwoUp
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Real-time games (Air Hockey, Wall Defense, Keep-Up Duo) need a stable
+            // simulation rate; vSync would otherwise cap/override targetFrameRate.
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 60;
         }
 
         private void Start()
