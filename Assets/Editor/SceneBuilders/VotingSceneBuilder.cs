@@ -115,6 +115,8 @@ namespace TwoUp.EditorTools
             UiKit.Place(toast.gameObject, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 60), new Vector2(800, 80));
             toast.gameObject.SetActive(false);
 
+            var getCoinsPanel = GetCoinsPanelBuilder.Add(screen.transform);
+
             var controller = screen.AddComponent<VotingController>();
             UiKit.SetArray(controller, "gameCards", cards);
             UiKit.SetRef(controller, "pairBadgeText", pairBadge);
@@ -131,6 +133,7 @@ namespace TwoUp.EditorTools
             UiKit.SetRef(controller, "findNewButton", findNew);
             UiKit.SetRef(controller, "homeButton", home);
             UiKit.SetRef(controller, "toastText", toast);
+            UiKit.SetRef(controller, "getCoinsPanel", getCoinsPanel);
 
             UiKit.SaveScene(scene, "Voting");
             UiKit.AddSceneToBuildSettings("Assets/Scenes/Voting.unity");
@@ -151,12 +154,23 @@ namespace TwoUp.EditorTools
             var tagsLabel = UiKit.CreateText(go.transform, "TagsLabel", tags, 28, new Color(0.85f, 0.88f, 0.95f));
             UiKit.Place(tagsLabel.gameObject, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 30), new Vector2(440, 60));
 
+            var costText = UiKit.CreateText(go.transform, "Text_CoinCost", "0c", 24, new Color(1f, 0.85f, 0.3f));
+            costText.alignment = TMPro.TextAlignmentOptions.Right;
+            UiKit.Place(costText.gameObject, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-14, 46), new Vector2(110, 34));
+            costText.gameObject.SetActive(false);
+
+            var getCoinsBtn = UiKit.CreateButton(go.transform, "Btn_GetCoins", "+c", new Vector2(80, 40), UiKit.ButtonBg);
+            UiKit.Place(getCoinsBtn.gameObject, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-14, 8), new Vector2(80, 40));
+            getCoinsBtn.gameObject.SetActive(false);
+
             var card = go.AddComponent<GameCardView>();
             card.GameId = gameId;
             UiKit.SetRef(card, "nameLabel", nameLabel);
             UiKit.SetRef(card, "tagsLabel", tagsLabel);
             UiKit.SetRef(card, "background", img);
             UiKit.SetRef(card, "button", btn);
+            UiKit.SetRef(card, "costText", costText);
+            UiKit.SetRef(card, "getCoinsButton", getCoinsBtn);
             return card;
         }
     }

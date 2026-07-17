@@ -14,6 +14,8 @@ namespace TwoUp.UI
         [SerializeField] private TMP_Text tagsLabel;
         [SerializeField] private Image background;
         [SerializeField] private Button button;
+        [SerializeField] private TMP_Text costText;
+        [SerializeField] private Button getCoinsButton;
 
         public string GameId;
 
@@ -21,5 +23,7 @@ namespace TwoUp.UI
         public TMP_Text TagsLabel => tagsLabel;
         public Image Background => background;
         public Button Button => button;
+        public TMP_Text CostText => costText;
+        public Button GetCoinsButton => getCoinsButton;
     }
 }
