@@ -22,6 +22,16 @@ namespace TwoUp.UI
         [SerializeField] private Button profileButton;
         [SerializeField] private Button shopButton;
         [SerializeField] private Button settingsButton;
+        [SerializeField] private TMP_Text coinBalanceText;
+        [SerializeField] private GameObject dailyRewardPanel;
+        [SerializeField] private TMP_Text dailyStreakText;
+        [SerializeField] private TMP_Text dailyRewardAmountText;
+        [SerializeField] private Button claimDailyButton;
+        [SerializeField] private GetCoinsPanelController getCoinsPanel;
+
+        // Guards the daily-reward popup to a single auto-show per app session (survives Home
+        // being re-entered after a match, but resets on process restart).
+        private static bool dailyShownThisSession;
 
         private void Start()
         {
@@ -32,11 +42,26 @@ namespace TwoUp.UI
             profileButton.onClick.AddListener(OnProfile);
             shopButton.onClick.AddListener(OnShop);
             settingsButton.onClick.AddListener(OnSettings);
+            claimDailyButton.onClick.AddListener(OnClaimDaily);
 
             badgeAsyncCount.SetActive(false);
 
-            NetworkClient.Instance.AsyncMatchListReceived += OnAsyncMatchListReceived;
-            NetworkClient.Instance.Send(new Envelope { ListAsyncMatches = new ListAsyncMatches() });
+            var net = NetworkClient.Instance;
+            net.AsyncMatchListReceived += OnAsyncMatchListReceived;
+            net.OnDailyRewardClaimed += OnDailyRewardClaimed;
+            net.ErrorReceived += OnErrorReceived;
+            net.Send(new Envelope { ListAsyncMatches = new ListAsyncMatches() });
+        }
+
+        private void OnEnable()
+        {
+            EconomyState.Changed += RefreshCoin;
+            RefreshCoin();
+        }
+
+        private void OnDisable()
+        {
+            EconomyState.Changed -= RefreshCoin;
         }
 
         private void OnDestroy()
@@ -45,6 +70,31 @@ namespace TwoUp.UI
             if (net == null)
                 return;
             net.AsyncMatchListReceived -= OnAsyncMatchListReceived;
+            net.OnDailyRewardClaimed -= OnDailyRewardClaimed;
+            net.ErrorReceived -= OnErrorReceived;
+        }
+
+        private void RefreshCoin()
+        {
+            coinBalanceText.text = $"Coins: {EconomyState.CoinBalance}";
+
+            if (!dailyShownThisSession && EconomyState.DailyRewardAvailable)
+            {
+                dailyShownThisSession = true;
+                dailyRewardPanel.SetActive(true);
+                dailyStreakText.text = $"Day {EconomyState.StreakCount + 1}";
+                dailyRewardAmountText.text = $"Claim +{EconomyState.NextDailyRewardCoins}c";
+            }
+        }
+
+        private void OnClaimDaily() => NetworkClient.Instance.SendClaimDailyReward();
+
+        private void OnDailyRewardClaimed(DailyRewardClaimed reward) => dailyRewardPanel.SetActive(false);
+
+        private void OnErrorReceived(Error error)
+        {
+            if (error.Code == "daily_already_claimed")
+                dailyRewardPanel.SetActive(false);
         }
 
         private void OnPlayWithFriend()
